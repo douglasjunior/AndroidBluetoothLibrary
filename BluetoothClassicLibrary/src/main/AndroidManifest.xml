@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.github.douglasjunior.bluetoothclassiclibrary">
+
+    <application android:allowBackup="true" android:label="BluetoothClassicLibrary">
+
+    </application>
+
+</manifest>
