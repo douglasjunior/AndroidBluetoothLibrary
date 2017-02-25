@@ -1,6 +1,8 @@
 package com.github.douglasjunior.bluetoothclassiclibrary;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.support.annotation.RequiresPermission;
 
 /**
  * Created by Douglas on 16/09/2014.
@@ -20,6 +22,7 @@ public class BluetoothDeviceDecorator {
         mRSSI = RSSI;
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH)
     public String getName() {
         return mDevice.getName() != null && mDevice.getName().length() != 0 ? mDevice.getName() : "Desconhecido...";
     }

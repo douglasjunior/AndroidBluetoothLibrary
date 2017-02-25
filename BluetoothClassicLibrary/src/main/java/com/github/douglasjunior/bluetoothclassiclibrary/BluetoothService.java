@@ -7,26 +7,19 @@ import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 /**
  * Created by douglas on 23/03/15.
  */
 public abstract class BluetoothService {
     // Debugging
-    protected static final String TAG = "BluetoothService";
+    private static final String TAG = BluetoothService.class.getSimpleName();
     protected static final boolean D = true;
 
-    protected static BluetoothService mServiceInstance;
-    protected final char mCharacterDelimiter;
-    protected final Context mContext;
-    protected final int mBufferSize;
-    protected final String mDeviceName;
-    protected int mState;
-
-    // Constants that indicate the current connection state
-    public static final int STATE_NONE = 0x0; // we're doing nothing
-    public static final int STATE_CONNECTING = 0x1; // now initiating an outgoing
-    public static final int STATE_CONNECTED = 0x2; // now connected to a remote
+    protected static BluetoothService mDefaultServiceInstance;
+    protected BluetoothConfiguration mConfig;
+    protected BluetoothStatus mStatus;
 
     protected final Handler handler = new Handler();
 
@@ -34,30 +27,34 @@ public abstract class BluetoothService {
 
     protected OnBluetoothScanCallback onScanCallback;
 
-    protected BluetoothService(Context context, String deviceName, Integer bufferSize, Character characterDelimiter) {
-        this.mCharacterDelimiter = characterDelimiter;
-        this.mContext = context;
-        this.mBufferSize = bufferSize;
-        this.mDeviceName = deviceName;
-        this.mState = STATE_NONE;
+    private static BluetoothConfiguration mDefaultConfiguration;
+
+    protected BluetoothService(BluetoothConfiguration config) {
+        mConfig = config;
+        this.mStatus = BluetoothStatus.NONE;
     }
 
-    public static BluetoothService getInstance() {
-        if (mServiceInstance == null) {
-            throw new NullPointerException("O serviço não foi inciado, chame createServiceInstance() para iniciar.");
-        }
-        return mServiceInstance;
+    public static void setDefaultConfiguration(BluetoothConfiguration config) {
+        mDefaultConfiguration = config;
     }
 
-    public static void createServiceInstance(Class<? extends BluetoothService> bluetoothServiceClass, Context context, String deviceName, int bufferSize, char characterDelimiter) {
-        try {
-            Constructor<? extends BluetoothService> constructor = bluetoothServiceClass.getDeclaredConstructors()[0];
-            constructor.setAccessible(true);
-            BluetoothService bluetoothService = constructor.newInstance(context, deviceName, bufferSize, characterDelimiter);
-            mServiceInstance = bluetoothService;
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+    public synchronized static BluetoothService getDefaultInstance() {
+        if (mDefaultServiceInstance == null) {
+            try {
+                Constructor<? extends BluetoothService> constructor =
+                        (Constructor<? extends BluetoothService>) mDefaultConfiguration.bluetoothServiceClass.getDeclaredConstructors()[0];
+                constructor.setAccessible(true);
+                BluetoothService bluetoothService = constructor.newInstance(mDefaultConfiguration);
+                mDefaultServiceInstance = bluetoothService;
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
+        return mDefaultServiceInstance;
     }
 
     public void setOnEventCallback(OnBluetoothEventCallback onEventCallback) {
@@ -70,26 +67,26 @@ public abstract class BluetoothService {
 
     public abstract void write(byte[] bytes);
 
-    public char getCharacterDelimiter() {
-        return mCharacterDelimiter;
+    public BluetoothConfiguration getConfiguration() {
+        return mConfig;
     }
 
-    protected synchronized void setState(final int state) {
-        Log.d(TAG, "setState() " + mState + " -> " + state);
-        mState = state;
+    protected synchronized void updateState(final BluetoothStatus status) {
+        Log.v(TAG, "updateStatus() " + mStatus + " -> " + status);
+        mStatus = status;
 
         // Give the new state to the Handler so the UI Activity can update
         if (onEventCallback != null)
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    onEventCallback.onStateChange(state);
+                    onEventCallback.onStatusChange(status);
                 }
             });
     }
 
-    public synchronized int getState() {
-        return mState;
+    public synchronized BluetoothStatus getStatus() {
+        return mStatus;
     }
 
     public abstract void stopService();
@@ -103,7 +100,7 @@ public abstract class BluetoothService {
     public interface OnBluetoothEventCallback {
         void onDataRead(byte[] buffer, int length);
 
-        void onStateChange(int state);
+        void onStatusChange(BluetoothStatus status);
 
         void onDeviceName(String deviceName);
 
@@ -112,11 +109,22 @@ public abstract class BluetoothService {
         void onDataWrite(byte[] buffer);
     }
 
-    public interface OnBluetoothScanCallback{
+    public interface OnBluetoothScanCallback {
         void onDeviceDiscovered(BluetoothDevice device, int rssi);
 
         void onStartScan();
 
         void onStopScan();
+    }
+
+    public static class BluetoothConfiguration {
+        public Class<? extends BluetoothService> bluetoothServiceClass;
+        public Context context;
+        public String deviceName;
+        public int bufferSize;
+        public char characterDelimiter;
+        public UUID uuid;
+        public UUID uuidService;
+        public UUID uuidCharacteristic;
     }
 }

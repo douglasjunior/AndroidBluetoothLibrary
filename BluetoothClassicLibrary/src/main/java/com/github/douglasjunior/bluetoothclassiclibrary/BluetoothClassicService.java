@@ -13,6 +13,7 @@
 
 package com.github.douglasjunior.bluetoothclassiclibrary;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -21,11 +22,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.os.Looper;
+import android.support.annotation.RequiresPermission;
 import android.util.Log;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.UUID;
 
 /**
  * This class does all the work for setting up and managing Bluetooth connections with other devices. It has a thread
@@ -34,36 +36,38 @@ import java.util.UUID;
  */
 public class BluetoothClassicService extends BluetoothService {
 
+    private static final String TAG = BluetoothClassicService.class.getSimpleName();
+
     // Unique UUID for this application
-    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+    //private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
 
     // Member fields
     private final BluetoothAdapter mAdapter;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
 
-    protected BluetoothClassicService(Context context, String deviceName, Integer bufferSize, Character characterDelimiter) {
-        super(context, deviceName, bufferSize, characterDelimiter);
+    protected BluetoothClassicService(BluetoothConfiguration config) {
+        super(config);
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-        mState = STATE_NONE;
+        mStatus = BluetoothStatus.NONE;
     }
 
     /**
      * Set the current state of the chat connection
      *
-     * @param state An integer defining the current connection state
+     * @param status An integer defining the current connection state
      */
-    protected synchronized void setState(final int state) {
+    protected synchronized void updateStatus(final BluetoothStatus status) {
         if (D)
-            Log.d(TAG, "setState() " + mState + " -> " + state);
-        mState = state;
+            Log.d(TAG, "updateStatus() " + mStatus + " -> " + status);
+        mStatus = status;
 
         // Give the new state to the Handler so the UI Activity can update
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    onEventCallback.onStateChange(state);
+                    onEventCallback.onStatusChange(status);
                 }
             });
 
@@ -74,12 +78,13 @@ public class BluetoothClassicService extends BluetoothService {
      *
      * @param device The BluetoothDevice to connect
      */
+    @RequiresPermission(Manifest.permission.BLUETOOTH)
     public synchronized void connect(BluetoothDevice device) {
         if (D)
             Log.d(TAG, "connect to: " + device);
 
         // Cancel any thread attempting to make a connection
-        if (mState == STATE_CONNECTING) {
+        if (mStatus == BluetoothStatus.CONNECTING) {
             if (mConnectThread != null) {
                 mConnectThread.cancel();
                 mConnectThread = null;
@@ -95,7 +100,7 @@ public class BluetoothClassicService extends BluetoothService {
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
-        setState(STATE_CONNECTING);
+        updateState(BluetoothStatus.CONNECTING);
     }
 
     /**
@@ -104,6 +109,7 @@ public class BluetoothClassicService extends BluetoothService {
      * @param socket The BluetoothSocket on which the connection was made
      * @param device The BluetoothDevice that has been connected
      */
+    @RequiresPermission(Manifest.permission.BLUETOOTH)
     public synchronized void connected(BluetoothSocket socket, final BluetoothDevice device) {
         if (D)
             Log.d(TAG, "connected");
@@ -126,14 +132,17 @@ public class BluetoothClassicService extends BluetoothService {
 
         // Send the name of the connected device back to the UI Activity
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
+
+                @RequiresPermission(Manifest.permission.BLUETOOTH)
                 @Override
                 public void run() {
                     onEventCallback.onDeviceName(device.getName());
                 }
+
             });
 
-        setState(STATE_CONNECTED);
+        updateState(BluetoothStatus.CONNECTED);
     }
 
     /**
@@ -150,8 +159,10 @@ public class BluetoothClassicService extends BluetoothService {
             mConnectedThread.cancel();
             mConnectedThread = null;
         }
-        setState(STATE_NONE);
-        mServiceInstance = null;
+        if (getStatus() != BluetoothStatus.NONE)
+            updateState(BluetoothStatus.NONE);
+        if (BluetoothService.mDefaultServiceInstance == this)
+            BluetoothService.mDefaultServiceInstance = null;
     }
 
     /**
@@ -165,7 +176,7 @@ public class BluetoothClassicService extends BluetoothService {
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
 
-        if (mState != STATE_CONNECTED)
+        if (mStatus != BluetoothStatus.CONNECTED)
             return;
 
         r = mConnectedThread;
@@ -178,14 +189,14 @@ public class BluetoothClassicService extends BluetoothService {
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
-        setState(STATE_NONE);
+        updateState(BluetoothStatus.NONE);
 
         // Send a failure message back to the Activity
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    onEventCallback.onToast("Não foi possível conectar ao dispositivo");
+                    onEventCallback.onToast("Não foi possível conectar ao dispositivo.");
                 }
             });
     }
@@ -194,15 +205,15 @@ public class BluetoothClassicService extends BluetoothService {
      * Indicate that the connection was lost and notify the UI Activity.
      */
     private void connectionLost() {
-        setState(STATE_NONE);
+        updateState(BluetoothStatus.NONE);
 
         // Send a failure message back to the Activity
 
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    onEventCallback.onToast("Conexão perdida com o dispositivo");
+                    onEventCallback.onToast("Conexão perdida com o dispositivo.");
                 }
             });
     }
@@ -215,6 +226,7 @@ public class BluetoothClassicService extends BluetoothService {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH)
         public ConnectThread(BluetoothDevice device) {
             mmDevice = device;
             BluetoothSocket tmp = null;
@@ -222,12 +234,12 @@ public class BluetoothClassicService extends BluetoothService {
             // Get a BluetoothSocket for a connection with the
             // given BluetoothDevice
             try {
-                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+                tmp = device.createRfcommSocketToServiceRecord(mConfig.uuid);
             } catch (Exception e) {
                 Log.e(TAG, "create() failed", e);
             }
             try {
-                AudioManager mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+                AudioManager mAudioManager = (AudioManager) mConfig.context.getSystemService(Context.AUDIO_SERVICE);
                 //For phone speaker(loadspeaker)
                 mAudioManager.setMode(AudioManager.MODE_NORMAL);
                 mAudioManager.setBluetoothScoOn(false);
@@ -238,12 +250,14 @@ public class BluetoothClassicService extends BluetoothService {
             mmSocket = tmp;
         }
 
+        @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN})
         public void run() {
             Log.i(TAG, "BEGIN mConnectThread");
             setName("ConnectThread");
 
             // Always cancel discovery because it will slow down a connection
-            mAdapter.cancelDiscovery();
+            if (mAdapter.isDiscovering())
+                mAdapter.cancelDiscovery();
 
             // Make a connection to the BluetoothSocket
             try {
@@ -315,31 +329,30 @@ public class BluetoothClassicService extends BluetoothService {
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte temp;
-            final byte[] buffer = new byte[mBufferSize];
+            final byte[] buffer = new byte[mConfig.bufferSize];
             int i = 0;
-
+            byte byteDelimiter = (byte) mConfig.characterDelimiter;
             // Keep listening to the InputStream while connected
             while (!canceled) {
                 try {
                     // Read from the InputStream
-                    temp = (byte) mmInStream.read();
-                    //     System.out.println("temp: " + (int) temp);
-                    if ((temp == (byte) mCharacterDelimiter || i >= buffer.length) && i > 0) {
-                        // Send the obtained bytes to the UI Activity
-                        if (onEventCallback != null) {
-                            final int finalI = i;
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    onEventCallback.onDataRead(buffer, finalI);
-                                }
-                            });
+                    int read = mmInStream.read();
+                    temp = (byte) read;
+
+                    if (temp == byteDelimiter) {
+                        if (i > 0) {
+                            dispatchBuffer(buffer, i);
+                            i = 0;
                         }
-                        i = 0;
-                    } else {
-                        buffer[i] = temp;
-                        i++;
+                        continue;
                     }
+                    if (i == buffer.length - 1) {
+                        dispatchBuffer(buffer, i);
+                        i = 0;
+                    }
+                    buffer[i] = temp;
+                    i++;
+                    //System.out.println("read: " + new String(buffer, 0 , i));
                 } catch (Exception e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
@@ -347,6 +360,19 @@ public class BluetoothClassicService extends BluetoothService {
                 }
             }
 
+        }
+
+        private void dispatchBuffer(byte[] buffer, int i) {
+            final byte[] data = new byte[i];
+            System.arraycopy(buffer, 0, data, 0, i);
+            if (onEventCallback != null) {
+                runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onEventCallback.onDataRead(data, data.length);
+                    }
+                });
+            }
         }
 
         /**
@@ -360,7 +386,7 @@ public class BluetoothClassicService extends BluetoothService {
                 mmOutStream.flush();
 
                 if (onEventCallback != null)
-                    handler.post(new Runnable() {
+                    runOnMainThread(new Runnable() {
                         @Override
                         public void run() {
                             onEventCallback.onDataWrite(buffer);
@@ -391,9 +417,18 @@ public class BluetoothClassicService extends BluetoothService {
         }
     }
 
+    private void runOnMainThread(Runnable runnable) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            runnable.run();
+        } else {
+            handler.post(runnable);
+        }
+    }
+
     // The BroadcastReceiver that listens for discovered devices and
     // changes the title when discovery is finished
     private final BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
+        @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH})
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -407,7 +442,7 @@ public class BluetoothClassicService extends BluetoothService {
                 final int RSSI = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
 
                 if (onScanCallback != null)
-                    handler.post(new Runnable() {
+                    runOnMainThread(new Runnable() {
                         @Override
                         public void run() {
                             onScanCallback.onDeviceDiscovered(device, RSSI);
@@ -419,10 +454,11 @@ public class BluetoothClassicService extends BluetoothService {
         }
     };
 
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH})
     @Override
     public void startScan() {
         if (onScanCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     onScanCallback.onStartScan();
@@ -431,11 +467,11 @@ public class BluetoothClassicService extends BluetoothService {
 
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        mContext.registerReceiver(mScanReceiver, filter);
+        mConfig.context.registerReceiver(mScanReceiver, filter);
 
         // Register for broadcasts when discovery has finished
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        mContext.registerReceiver(mScanReceiver, filter);
+        mConfig.context.registerReceiver(mScanReceiver, filter);
 
         if (mAdapter.isDiscovering()) {
             mAdapter.cancelDiscovery();
@@ -444,10 +480,11 @@ public class BluetoothClassicService extends BluetoothService {
         mAdapter.startDiscovery();
     }
 
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH})
     @Override
     public void stopScan() {
         try {
-            mContext.unregisterReceiver(mScanReceiver);
+            mConfig.context.unregisterReceiver(mScanReceiver);
         } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
         }
@@ -457,7 +494,7 @@ public class BluetoothClassicService extends BluetoothService {
         }
 
         if (onScanCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     onScanCallback.onStopScan();

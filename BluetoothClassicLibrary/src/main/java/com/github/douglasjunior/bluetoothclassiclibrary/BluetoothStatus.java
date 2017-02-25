@@ -16,12 +16,6 @@ public enum BluetoothStatus {
             return "Conectando";
         }
     },
-    DISABLED {
-        @Override
-        public String toString() {
-            return "Desabilitado";
-        }
-    },
     NONE {
         @Override
         public String toString() {
