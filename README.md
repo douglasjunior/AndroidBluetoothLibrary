@@ -39,7 +39,7 @@ Soon
 
     ```javascript
     dependencies {
-        compile 'com.github.douglasjunior:AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:v0.2.1'
+        compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:v0.2.1'
     }
     ```
  
