@@ -1,5 +1,6 @@
 # AndroidBluetoothLibrary
-A Library for implementation Bluetooth Classic and Low Energy on Android.
+
+A Library for easy implementation Bluetooth Classic and Low Energy on Android.
 
 ## Use
 
