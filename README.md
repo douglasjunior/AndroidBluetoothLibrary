@@ -15,31 +15,31 @@ Soon
 
 ## Install 
 
- 1. Add it in your root build.gradle at the end of repositories:
-  ```javascript
-  allprojects {
-    repositories {
-      ...
-      maven { url "https://jitpack.io" }
-    }
-  }
-  ```
+1. Add it in your root build.gradle at the end of repositories:
+   ```javascript
+   allprojects {
+     repositories {
+       ...
+       maven { url "https://jitpack.io" }
+     }
+   }
+   ```
 
- 2. Add the dependency
- 
-  2.1. Bluetooth Classic
-   ```javascript
-   dependencies {
-     compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:v0.2.1'
-   }
-   ```
+2. Add the dependency
+
+   2.1. Bluetooth Classic
+     ```javascript
+     dependencies {
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:v0.2.1'
+     }
+     ```
     
-  2.2. Bluetooth Low Energy
-   ```javascript
-   dependencies {
-     compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:v0.2.1'
-   }
-   ```
+   2.2. Bluetooth Low Energy
+     ```javascript
+     dependencies {
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:v0.2.1'
+     }
+     ```
  
 ## Contribute
 
