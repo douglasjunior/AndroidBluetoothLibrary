@@ -11,11 +11,8 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.os.Build;
-import android.os.Handler;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
-
 
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
@@ -42,8 +39,6 @@ public class BluetoothLeService extends BluetoothService {
 
     private final byte[] buffer;
     private int i = 0;
-
-    private Handler handler = new Handler();
 
     protected BluetoothLeService(BluetoothConfiguration config) {
         super(config);
@@ -80,7 +75,7 @@ public class BluetoothLeService extends BluetoothService {
             Log.v(TAG, "onCharacteristicWrite: " + new String(data));
             if (BluetoothGatt.GATT_SUCCESS == status) {
                 if (onEventCallback != null)
-                    handler.post(new Runnable() {
+                    runOnMainThread(new Runnable() {
                         @Override
                         public void run() {
                             onEventCallback.onDataWrite(data);
@@ -166,7 +161,7 @@ public class BluetoothLeService extends BluetoothService {
     @RequiresPermission(Manifest.permission.BLUETOOTH)
     private void updateDeviceName(final BluetoothDevice device) {
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @RequiresPermission(Manifest.permission.BLUETOOTH)
                 @Override
                 public void run() {
@@ -200,7 +195,7 @@ public class BluetoothLeService extends BluetoothService {
                     // Send the obtained bytes to the UI Activity
                     if (onEventCallback != null) {
                         final int finalI = i;
-                        handler.post(new Runnable() {
+                        runOnMainThread(new Runnable() {
                             @Override
                             public void run() {
                                 onEventCallback.onDataRead(buffer, finalI);
@@ -222,7 +217,7 @@ public class BluetoothLeService extends BluetoothService {
 
     private void makeToast(final String message) {
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     onEventCallback.onToast(message);
@@ -241,7 +236,9 @@ public class BluetoothLeService extends BluetoothService {
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     final Runnable mStopScanRunnable = new Runnable() {
+        @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
         @Override
         public void run() {
             stopScan();
@@ -257,7 +254,7 @@ public class BluetoothLeService extends BluetoothService {
             List<UUID> uuids = parseUUIDs(scanRecord);
             Log.v(TAG, "onLeScan " + device.getName() + " " + new String(scanRecord) + " -> uuids: " + uuids);
             if (onScanCallback != null && uuids.contains(mConfig.uuid)) {
-                handler.post(new Runnable() {
+                runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
                         onScanCallback.onDeviceDiscovered(device, rssi);
@@ -272,7 +269,7 @@ public class BluetoothLeService extends BluetoothService {
     @Override
     public void startScan() {
         if (onScanCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     onScanCallback.onStartScan();
@@ -283,7 +280,7 @@ public class BluetoothLeService extends BluetoothService {
 
         btAdapter.startLeScan(mLeScanCallback);
 
-        handler.postDelayed(mStopScanRunnable, SCAN_PERIOD);
+        runOnMainThread(mStopScanRunnable, SCAN_PERIOD);
     }
 
     private List<UUID> parseUUIDs(final byte[] advertisedData) {
@@ -341,11 +338,11 @@ public class BluetoothLeService extends BluetoothService {
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     @Override
     public void stopScan() {
-        handler.removeCallbacks(mStopScanRunnable);
+        runOnMainThread(mStopScanRunnable);
         btAdapter.stopLeScan(mLeScanCallback);
-
+        
         if (onScanCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     onScanCallback.onStopScan();

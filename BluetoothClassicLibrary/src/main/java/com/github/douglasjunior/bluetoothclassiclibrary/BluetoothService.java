@@ -3,11 +3,14 @@ package com.github.douglasjunior.bluetoothclassiclibrary;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
+
+import static android.R.attr.delay;
 
 /**
  * Created by douglas on 23/03/15.
@@ -21,7 +24,7 @@ public abstract class BluetoothService {
     protected BluetoothConfiguration mConfig;
     protected BluetoothStatus mStatus;
 
-    protected final Handler handler = new Handler();
+    private final Handler handler;
 
     protected OnBluetoothEventCallback onEventCallback;
 
@@ -30,8 +33,13 @@ public abstract class BluetoothService {
     private static BluetoothConfiguration mDefaultConfiguration;
 
     protected BluetoothService(BluetoothConfiguration config) {
-        mConfig = config;
+        this.mConfig = config;
         this.mStatus = BluetoothStatus.NONE;
+        if (config.callListenersInMainThread) {
+            handler = new Handler();
+        } else {
+            handler = null;
+        }
     }
 
     public static void setDefaultConfiguration(BluetoothConfiguration config) {
@@ -77,12 +85,27 @@ public abstract class BluetoothService {
 
         // Give the new state to the Handler so the UI Activity can update
         if (onEventCallback != null)
-            handler.post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     onEventCallback.onStatusChange(status);
                 }
             });
+    }
+
+    protected void runOnMainThread(Runnable runnable, long delayMillis) {
+        if (!mConfig.callListenersInMainThread || Looper.myLooper() == Looper.getMainLooper()) {
+            runnable.run();
+        } else {
+            if (delay > 0)
+                handler.postDelayed(runnable, delay);
+            else
+                handler.post(runnable);
+        }
+    }
+
+    protected void runOnMainThread(Runnable runnable) {
+        runOnMainThread(runnable, 0);
     }
 
     public synchronized BluetoothStatus getStatus() {
@@ -126,5 +149,6 @@ public abstract class BluetoothService {
         public UUID uuid;
         public UUID uuidService;
         public UUID uuidCharacteristic;
+        public boolean callListenersInMainThread = true;
     }
 }

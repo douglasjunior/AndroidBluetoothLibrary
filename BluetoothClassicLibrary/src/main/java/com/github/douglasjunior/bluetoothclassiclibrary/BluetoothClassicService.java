@@ -417,14 +417,6 @@ public class BluetoothClassicService extends BluetoothService {
         }
     }
 
-    private void runOnMainThread(Runnable runnable) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            runnable.run();
-        } else {
-            handler.post(runnable);
-        }
-    }
-
     // The BroadcastReceiver that listens for discovered devices and
     // changes the title when discovery is finished
     private final BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
