@@ -11,12 +11,14 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
 
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
 
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -231,8 +233,35 @@ public class BluetoothLeService extends BluetoothService {
             if (bluetoothGatt != null) {
                 bluetoothGatt.disconnect();
             }
+
             updateState(BluetoothStatus.CONNECTING);
-            bluetoothGatt = bluetoothDevice.connectGatt(mConfig.context, false, btleGattCallback);
+
+            /*
+            About this issue:
+            https://code.google.com/p/android/issues/detail?id=92949
+            http://stackoverflow.com/q/27633680/2826279
+             */
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // If android verion is greather or equal to Android M (23), then call the connectGatt with TRANSPORT_LE.
+                bluetoothGatt = bluetoothDevice.connectGatt(mConfig.context, false, btleGattCallback, mConfig.transport);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // From Android LOLLIPOP (21) the transport types exists, but them are hide for use,
+                // so is needed to use relfection to get the value
+                try {
+                    Method connectGattMethod = bluetoothDevice.getClass().getDeclaredMethod("connectGatt", Context.class, boolean.class, BluetoothGattCallback.class, int.class);
+                    connectGattMethod.setAccessible(true);
+                    bluetoothGatt = (BluetoothGatt) connectGattMethod.invoke(bluetoothDevice, mConfig.context, false, btleGattCallback, mConfig.transport);
+                } catch (Exception ex) {
+                    Log.d(TAG, "Error on call BluetoothDevice.connectGatt with reflection.", ex);
+                }
+            }
+
+            // If any try is fail, then call the connectGatt without transport
+            if (bluetoothGatt == null) {
+                bluetoothGatt = bluetoothDevice.connectGatt(mConfig.context, false, btleGattCallback);
+            }
+
         }
     }
 
@@ -338,9 +367,9 @@ public class BluetoothLeService extends BluetoothService {
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     @Override
     public void stopScan() {
-        runOnMainThread(mStopScanRunnable);
+        removeRunnableFromHandler(mStopScanRunnable);
         btAdapter.stopLeScan(mLeScanCallback);
-        
+
         if (onScanCallback != null)
             runOnMainThread(new Runnable() {
                 @Override

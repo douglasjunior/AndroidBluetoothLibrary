@@ -2,6 +2,7 @@ package com.github.douglasjunior.bluetoothclassiclibrary;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -92,18 +93,24 @@ public abstract class BluetoothService {
     }
 
     protected void runOnMainThread(Runnable runnable, long delayMillis) {
-        if (!mConfig.callListenersInMainThread || Looper.myLooper() == Looper.getMainLooper()) {
-            runnable.run();
-        } else {
+        if ((mConfig.callListenersInMainThread && Looper.myLooper() != Looper.getMainLooper()) || delayMillis > 0) {
             if (delayMillis > 0)
                 handler.postDelayed(runnable, delayMillis);
             else
                 handler.post(runnable);
+        } else {
+            runnable.run();
         }
     }
 
     protected void runOnMainThread(Runnable runnable) {
         runOnMainThread(runnable, 0);
+    }
+
+    protected void removeRunnableFromHandler(Runnable runnable) {
+        if (handler != null) {
+            handler.removeCallbacks(runnable);
+        }
     }
 
     public synchronized BluetoothStatus getStatus() {
@@ -147,6 +154,32 @@ public abstract class BluetoothService {
         public UUID uuid;
         public UUID uuidService;
         public UUID uuidCharacteristic;
+        /**
+         * @see BluetoothDevice#TRANSPORT_AUTO
+         * @see BluetoothDevice#TRANSPORT_BREDR
+         * @see BluetoothDevice#TRANSPORT_LE
+         */
+        public int transport;
         public boolean callListenersInMainThread = true;
+
+        public BluetoothConfiguration() {
+            setDefaultTransport();
+        }
+
+        private void setDefaultTransport() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                transport = BluetoothDevice.TRANSPORT_LE;
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // From Android LOLLIPOP (21) the transport types exists, but them are hide for use,
+                // so is needed to use relfection to get the value
+                try {
+                    transport = BluetoothDevice.class.getDeclaredField("TRANSPORT_LE").getInt(null);
+                } catch (Exception ex) {
+                    Log.d(TAG, "Error on get BluetoothDevice.TRANSPORT_LE with reflection.", ex);
+                }
+            } else {
+                transport = -1;
+            }
+        }
     }
 }
