@@ -10,8 +10,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
-import static android.R.attr.delay;
-
 /**
  * Created by douglas on 23/03/15.
  */
@@ -97,8 +95,8 @@ public abstract class BluetoothService {
         if (!mConfig.callListenersInMainThread || Looper.myLooper() == Looper.getMainLooper()) {
             runnable.run();
         } else {
-            if (delay > 0)
-                handler.postDelayed(runnable, delay);
+            if (delayMillis > 0)
+                handler.postDelayed(runnable, delayMillis);
             else
                 handler.post(runnable);
         }
