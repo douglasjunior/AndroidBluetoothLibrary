@@ -1,15 +1,12 @@
 package com.github.douglasjunior.bluetoothclassiclibrary;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.UUID;
 
 /**
  * Created by douglas on 23/03/15.
@@ -41,29 +38,6 @@ public abstract class BluetoothService {
         }
     }
 
-    public static void setDefaultConfiguration(BluetoothConfiguration config) {
-        mDefaultConfiguration = config;
-    }
-
-    public synchronized static BluetoothService getDefaultInstance() {
-        if (mDefaultServiceInstance == null) {
-            try {
-                Constructor<? extends BluetoothService> constructor =
-                        (Constructor<? extends BluetoothService>) mDefaultConfiguration.bluetoothServiceClass.getDeclaredConstructors()[0];
-                constructor.setAccessible(true);
-                BluetoothService bluetoothService = constructor.newInstance(mDefaultConfiguration);
-                mDefaultServiceInstance = bluetoothService;
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return mDefaultServiceInstance;
-    }
-
     public void setOnEventCallback(OnBluetoothEventCallback onEventCallback) {
         this.onEventCallback = onEventCallback;
     }
@@ -71,8 +45,6 @@ public abstract class BluetoothService {
     public void setOnScanCallback(OnBluetoothScanCallback onScanCallback) {
         this.onScanCallback = onScanCallback;
     }
-
-    public abstract void write(byte[] bytes);
 
     public BluetoothConfiguration getConfiguration() {
         return mConfig;
@@ -113,17 +85,95 @@ public abstract class BluetoothService {
         }
     }
 
+    /**
+     * Current BluetoothService status.
+     *
+     * @return
+     */
     public synchronized BluetoothStatus getStatus() {
         return mStatus;
     }
 
-    public abstract void stopService();
-
-    public abstract void connect(BluetoothDevice device);
-
+    /**
+     * Start scan process and call the {@link OnBluetoothScanCallback}
+     */
     public abstract void startScan();
 
+    /**
+     * Stop scan process and call the {@link OnBluetoothScanCallback}
+     */
     public abstract void stopScan();
+
+    /**
+     * Try to connect to the device and call the {@link OnBluetoothEventCallback}
+     */
+    public abstract void connect(BluetoothDevice device);
+
+    /**
+     * Write a array of bytes to the connected device.
+     */
+    public abstract void write(byte[] bytes);
+
+    /**
+     * Stops the BluetoothService and turn it unusable.
+     */
+    public abstract void stopService();
+
+    /* ====================================
+                STATICS METHODS
+     ====================================== */
+
+    /**
+     * Use {@link BluetoothService#init(BluetoothConfiguration)} instead.
+     *
+     * @param config
+     */
+    @Deprecated
+    public static void setDefaultConfiguration(BluetoothConfiguration config) {
+        init(config);
+    }
+
+    /**
+     * Configures and initialize the BluetoothService singleton instance.
+     *
+     * @param config
+     */
+    public static void init(BluetoothConfiguration config) {
+        mDefaultConfiguration = config;
+        if (mDefaultServiceInstance != null) {
+            mDefaultServiceInstance.stopService();
+            mDefaultServiceInstance = null;
+        }
+        try {
+            Constructor<? extends BluetoothService> constructor =
+                    (Constructor<? extends BluetoothService>) mDefaultConfiguration.bluetoothServiceClass.getDeclaredConstructors()[0];
+            constructor.setAccessible(true);
+            BluetoothService bluetoothService = constructor.newInstance(mDefaultConfiguration);
+            mDefaultServiceInstance = bluetoothService;
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Get the BluetoothService singleton instance.
+     *
+     * @return
+     */
+    public synchronized static BluetoothService getDefaultInstance() {
+        if (mDefaultServiceInstance == null) {
+            throw new IllegalStateException("BluetoothService is not initialized. Call BluetoothService.init(config).");
+        }
+        return mDefaultServiceInstance;
+    }
+
+    /* ====================================
+                    CALLBACKS
+     ====================================== */
 
     public interface OnBluetoothEventCallback {
         void onDataRead(byte[] buffer, int length);
@@ -143,43 +193,5 @@ public abstract class BluetoothService {
         void onStartScan();
 
         void onStopScan();
-    }
-
-    public static class BluetoothConfiguration {
-        public Class<? extends BluetoothService> bluetoothServiceClass;
-        public Context context;
-        public String deviceName;
-        public int bufferSize;
-        public char characterDelimiter;
-        public UUID uuid;
-        public UUID uuidService;
-        public UUID uuidCharacteristic;
-        /**
-         * @see BluetoothDevice#TRANSPORT_AUTO
-         * @see BluetoothDevice#TRANSPORT_BREDR
-         * @see BluetoothDevice#TRANSPORT_LE
-         */
-        public int transport;
-        public boolean callListenersInMainThread = true;
-
-        public BluetoothConfiguration() {
-            setDefaultTransport();
-        }
-
-        private void setDefaultTransport() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                transport = BluetoothDevice.TRANSPORT_LE;
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // From Android LOLLIPOP (21) the transport types exists, but them are hide for use,
-                // so is needed to use relfection to get the value
-                try {
-                    transport = BluetoothDevice.class.getDeclaredField("TRANSPORT_LE").getInt(null);
-                } catch (Exception ex) {
-                    Log.d(TAG, "Error on get BluetoothDevice.TRANSPORT_LE with reflection.", ex);
-                }
-            } else {
-                transport = -1;
-            }
-        }
     }
 }

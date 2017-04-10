@@ -15,6 +15,7 @@ import android.os.Build;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
 
+import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothConfiguration;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
 
