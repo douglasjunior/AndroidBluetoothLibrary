@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.os.Looper;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
 
@@ -231,8 +230,7 @@ public class BluetoothClassicService extends BluetoothService {
             mmDevice = device;
             BluetoothSocket tmp = null;
 
-            // Get a BluetoothSocket for a connection with the
-            // given BluetoothDevice
+            // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
                 tmp = device.createRfcommSocketToServiceRecord(mConfig.uuid);
             } catch (Exception e) {
