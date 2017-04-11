@@ -10,7 +10,6 @@ import android.support.annotation.RequiresPermission;
 public class BluetoothDeviceDecorator {
 
     private BluetoothDevice mDevice;
-
     private int mRSSI;
 
     public BluetoothDeviceDecorator(BluetoothDevice device) {
@@ -46,15 +45,19 @@ public class BluetoothDeviceDecorator {
 
         BluetoothDeviceDecorator that = (BluetoothDeviceDecorator) o;
 
-        return mDevice.getAddress().equals(that.mDevice.getAddress());
+        return mDevice.equals(that.mDevice);
     }
 
     @Override
     public int hashCode() {
-        return mDevice.getAddress().hashCode();
+        return mDevice.hashCode();
     }
 
     public void setDevice(BluetoothDevice device) {
         this.mDevice = device;
+    }
+
+    public BluetoothDevice getDevice() {
+        return mDevice;
     }
 }

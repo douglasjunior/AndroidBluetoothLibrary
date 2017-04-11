@@ -283,7 +283,7 @@ public class BluetoothLeService extends BluetoothService {
         public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
             List<UUID> uuids = parseUUIDs(scanRecord);
             Log.v(TAG, "onLeScan " + device.getName() + " " + new String(scanRecord) + " -> uuids: " + uuids);
-            if (onScanCallback != null && uuids.contains(mConfig.uuid)) {
+            if (onScanCallback != null && (mConfig.uuid == null || uuids.contains(mConfig.uuid))) {
                 runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
