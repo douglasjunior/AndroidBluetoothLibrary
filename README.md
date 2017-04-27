@@ -41,6 +41,22 @@ Soon
      }
      ```
  
+3. Add permission in `AndroidManifest.xml` 
+
+```xml
+<manifest ...>
+  <uses-permission android:name="android.permission.BLUETOOTH" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+  <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  ...
+</manifest>
+```
+
+## Known issues
+
+- Location needs to be enabled for Bluetooth Low Energy Scanning on Android 6.0 http://stackoverflow.com/a/33045489/2826279
+ 
 ## Contribute
 
 New features, bug fixes and improvements in the translation are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/AndroidBluetoothLibrary/issues).
