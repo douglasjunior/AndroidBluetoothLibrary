@@ -14,11 +14,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothClassicService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothConfiguration;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothDeviceDecorator;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
+import com.github.douglasjunior.bluetoothlowenergylibrary.BluetoothLeService;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -31,8 +31,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
      * Change for the UUID that you want.
      */
     private static final UUID UUID_DEVICE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private static final UUID UUID_SERVICE = UUID.fromString("35111C00001101-0000-1000-8000-00805F9B34FB");
-    private static final UUID UUID_CHARACTERISTIC =  UUID.fromString("35111C00001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID UUID_SERVICE = UUID.fromString("e7810a71-73ae-499d-8c15-faa9aef0c3f2");
+    private static final UUID UUID_CHARACTERISTIC = UUID.fromString("bef8d6c9-9c21-4c9e-b632-bd58c1009f9f");
 
     private ProgressBar pgBar;
     private Menu mMenu;
@@ -69,15 +69,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
 
         BluetoothConfiguration config = new BluetoothConfiguration();
         config.context = getApplicationContext();
-        config.bluetoothServiceClass = BluetoothClassicService.class; // or BluetoothClassicService.class
+        config.bluetoothServiceClass = BluetoothLeService.class; //  BluetoothClassicService.class or BluetoothLeService.class
         config.bufferSize = 1024;
         config.characterDelimiter = '\n';
         config.deviceName = "Bluetooth Sample";
         config.transport = BluetoothDevice.TRANSPORT_LE; // Only for dual-mode devices
         //config.uuid = null; // When using BluetoothLeService.class set null to show all devices on scan.
-        config.uuid = UUID_DEVICE;
-        //config.uuidService = UUID_SERVICE; // For BLE
-        //config.uuidCharacteristic = UUID_CHARACTERISTIC; // For BLE
+        //config.uuid = UUID_DEVICE;
+        config.uuidService = UUID_SERVICE; // For BLE
+        config.uuidCharacteristic = UUID_CHARACTERISTIC; // For BLE
         config.callListenersInMainThread = true;
         BluetoothService.init(config);
 

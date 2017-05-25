@@ -57,6 +57,12 @@ public class DeviceActivity extends AppCompatActivity implements BluetoothServic
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mService.disconnect();
+    }
+
+    @Override
     public void onStatusChange(BluetoothStatus status) {
         Log.d(TAG, "onStatusChange: " + status);
     }
