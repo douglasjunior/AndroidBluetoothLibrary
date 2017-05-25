@@ -59,7 +59,7 @@ public abstract class BluetoothService {
             });
     }
 
-    protected void runOnMainThread(Runnable runnable, long delayMillis) {
+    protected void runOnMainThread(final Runnable runnable, final long delayMillis) {
         if (mConfig.callListenersInMainThread) {
             if (delayMillis > 0) {
                 handler.postDelayed(runnable, delayMillis);
@@ -67,12 +67,20 @@ public abstract class BluetoothService {
                 handler.post(runnable);
             }
         } else {
-            try {
-                if (delayMillis > 0)
-                    Thread.sleep(delayMillis);
+            if (delayMillis > 0) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(delayMillis);
+                            runnable.run();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            } else {
                 runnable.run();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }
