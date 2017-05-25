@@ -1,19 +1,98 @@
 # AndroidBluetoothLibrary
 
-A Library for easy implementation Bluetooth Classic and Low Energy on Android.
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/AndroidBluetoothLibrary/blob/master/LICENSE)
+[![Release](https://jitpack.io/v/douglasjunior/AndroidBluetoothLibrary.svg)](https://jitpack.io/#douglasjunior/AndroidBluetoothLibrary)
+[![Downloads](https://jitpack.io/v/douglasjunior/AndroidBluetoothLibrary/month.svg)](#download)
+
+A Library for easy implementation of Serial Bluetooth Classic and Low Energy on Android.
 
 ## Use
 
-### Bluetooth Classic
+### Configuration
 
-Soon
+```java
+BluetoothConfiguration config = new BluetoothConfiguration();
+config.context = getApplicationContext();
+config.bluetoothServiceClass = BluetoothLeService.class; // BluetoothClassicService.class or BluetoothLeService.class
+config.bufferSize = 1024;
+config.characterDelimiter = '\n';
+config.deviceName = "Your App Name";
+config.callListenersInMainThread = true;
 
-### Bluetooth Low Energy
+// Bluetooth Classic
+config.uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // Set null to find all devices on scan.
 
-Soon
+// Bluetooth LE
+config.uuidService = UUID.fromString("e7810a71-73ae-499d-8c15-faa9aef0c3f2"); 
+config.uuidCharacteristic = UUID.fromString("bef8d6c9-9c21-4c9e-b632-bd58c1009f9f"); 
+config.transport = BluetoothDevice.TRANSPORT_LE; // Only for dual-mode devices
 
+BluetoothService.init(config);
+```
 
-## Install 
+### Getting BluetoothService
+
+```java
+BluetoothService service = BluetoothService.getDefaultInstance();
+```
+
+### Scanning
+
+```java
+service.setOnScanCallback(new BluetoothService.OnBluetoothScanCallback() {
+    @Override
+    public void onDeviceDiscovered(BluetoothDevice device, int rssi) {
+    }
+
+    @Override
+    public void onStartScan() {
+    }
+
+    @Override
+    public void onStopScan() {
+    }
+});
+
+service.startScan(); // See also service.stopScan();
+```
+
+### Connecting
+
+```java
+service.setOnEventCallback(new BluetoothService.OnBluetoothEventCallback() {
+    @Override
+    public void onDataRead(byte[] buffer, int length) {
+    }
+
+    @Override
+    public void onStatusChange(BluetoothStatus status) {
+    }
+
+    @Override
+    public void onDeviceName(String deviceName) {
+    }
+
+    @Override
+    public void onToast(String message) {
+    }
+
+    @Override
+    public void onDataWrite(byte[] buffer) {
+    }
+});
+
+service.connect(device); // See also service.disconnect();
+```
+
+### Writing
+
+```java
+BluetoothWriter writer = new BluetoothWriter(service);
+
+writer.writeln("Your text here");
+```
+
+## Download 
 
 1. Add it in your root build.gradle at the end of repositories:
    ```javascript
@@ -30,14 +109,14 @@ Soon
    2.1. Bluetooth Classic
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.1'
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.2'
      }
      ```
     
    2.2. Bluetooth Low Energy
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.1'
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.2'
      }
      ```
  
@@ -59,7 +138,7 @@ Soon
  
 ## Contribute
 
-New features, bug fixes and improvements in the translation are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/AndroidBluetoothLibrary/issues).
+New features, bug fixes and improvements are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/AndroidBluetoothLibrary/issues).
 
 Before submit your PR, run the gradle check.
 ```bash
