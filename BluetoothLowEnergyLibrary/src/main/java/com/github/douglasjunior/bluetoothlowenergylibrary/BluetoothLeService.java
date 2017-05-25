@@ -105,8 +105,6 @@ public class BluetoothLeService extends BluetoothService {
             } else {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     //createBound(gatt.getDevice());
-                    updateDeviceName(gatt.getDevice());
-                    updateState(BluetoothStatus.CONNECTED);
                     gatt.discoverServices();
                 } else if (newState == BluetoothProfile.STATE_CONNECTING) {
                     updateState(BluetoothStatus.CONNECTING);
@@ -138,26 +136,36 @@ public class BluetoothLeService extends BluetoothService {
             super.onReliableWriteCompleted(gatt, status);
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH)
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
             Log.v(TAG, "onServicesDiscovered: " + status);
+
             if (BluetoothGatt.GATT_SUCCESS == status) {
                 for (BluetoothGattService service : gatt.getServices()) {
                     Log.v(TAG, "Service: " + service.getUuid());
-                    if (mConfig.uuidService.equals(service.getUuid())) {
+                    if (service.getUuid().equals(mConfig.uuidService)) {
                         for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                            Log.v(TAG, "Characteristic: " + characteristic.getUuid());
-                            if (mConfig.uuidCharacteristic.equals(characteristic.getUuid())) {
+                            Log.v(TAG, "Characteristic: " + characteristic.getUuid() + " write: " + (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE));
+                            if (characteristic.getUuid().equals(mConfig.uuidCharacteristic)) {
                                 characteristicRxTx = characteristic;
                                 gatt.setCharacteristicNotification(characteristic, true);
+
+                                updateDeviceName(gatt.getDevice());
+                                updateState(BluetoothStatus.CONNECTED);
+                                return;
                             }
                         }
                     }
                 }
+                Log.e(TAG, "Could not find uuidService:" + mConfig.uuidService + " and uuidCharacteristic:" + mConfig.uuidCharacteristic);
             } else {
                 Log.e(TAG, "onServicesDiscovered error " + status);
             }
+
+            // If arrived here, no service or characteristic has been found.
+            gatt.disconnect();
         }
     };
 
