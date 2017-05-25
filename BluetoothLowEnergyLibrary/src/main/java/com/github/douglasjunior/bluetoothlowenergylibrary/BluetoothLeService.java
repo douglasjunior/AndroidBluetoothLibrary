@@ -266,6 +266,13 @@ public class BluetoothLeService extends BluetoothService {
         }
     }
 
+    @Override
+    public void disconnect() {
+        if (bluetoothGatt != null) {
+            bluetoothGatt.disconnect();
+        }
+    }
+
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     final Runnable mStopScanRunnable = new Runnable() {
         @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)

@@ -2,7 +2,6 @@ package com.github.douglasjunior.bluetoothclassiclibrary;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
@@ -31,11 +30,7 @@ public abstract class BluetoothService {
     protected BluetoothService(BluetoothConfiguration config) {
         this.mConfig = config;
         this.mStatus = BluetoothStatus.NONE;
-        if (config.callListenersInMainThread) {
-            handler = new Handler();
-        } else {
-            handler = null;
-        }
+        this.handler = new Handler();
     }
 
     public void setOnEventCallback(OnBluetoothEventCallback onEventCallback) {
@@ -65,13 +60,20 @@ public abstract class BluetoothService {
     }
 
     protected void runOnMainThread(Runnable runnable, long delayMillis) {
-        if ((mConfig.callListenersInMainThread && Looper.myLooper() != Looper.getMainLooper()) || delayMillis > 0) {
-            if (delayMillis > 0)
+        if (mConfig.callListenersInMainThread) {
+            if (delayMillis > 0) {
                 handler.postDelayed(runnable, delayMillis);
-            else
+            } else {
                 handler.post(runnable);
+            }
         } else {
-            runnable.run();
+            try {
+                if (delayMillis > 0)
+                    Thread.sleep(delayMillis);
+                runnable.run();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -108,6 +110,11 @@ public abstract class BluetoothService {
      * Try to connect to the device and call the {@link OnBluetoothEventCallback}
      */
     public abstract void connect(BluetoothDevice device);
+
+    /**
+     * Try to disconnect to the device and call the {@link OnBluetoothEventCallback}
+     */
+    public abstract void disconnect();
 
     /**
      * Write a array of bytes to the connected device.

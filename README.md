@@ -30,14 +30,14 @@ Soon
    2.1. Bluetooth Classic
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.0'
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.1'
      }
      ```
     
    2.2. Bluetooth Low Energy
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.0'
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.1'
      }
      ```
  

@@ -51,26 +51,6 @@ public class BluetoothClassicService extends BluetoothService {
         mStatus = BluetoothStatus.NONE;
     }
 
-    /**
-     * Set the current state of the chat connection
-     *
-     * @param status An integer defining the current connection state
-     */
-    protected synchronized void updateStatus(final BluetoothStatus status) {
-        if (D)
-            Log.d(TAG, "updateStatus() " + mStatus + " -> " + status);
-        mStatus = status;
-
-        // Give the new state to the Handler so the UI Activity can update
-        if (onEventCallback != null)
-            runOnMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    onEventCallback.onStatusChange(status);
-                }
-            });
-
-    }
 
     /**
      * Start the ConnectThread to initiate a connection to a remote device.
@@ -82,19 +62,7 @@ public class BluetoothClassicService extends BluetoothService {
         if (D)
             Log.d(TAG, "connect to: " + device);
 
-        // Cancel any thread attempting to make a connection
-        if (mStatus == BluetoothStatus.CONNECTING) {
-            if (mConnectThread != null) {
-                mConnectThread.cancel();
-                mConnectThread = null;
-            }
-        }
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {
-            mConnectedThread.cancel();
-            mConnectedThread = null;
-        }
+        disconnect();
 
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device);
@@ -102,18 +70,12 @@ public class BluetoothClassicService extends BluetoothService {
         updateState(BluetoothStatus.CONNECTING);
     }
 
-    /**
-     * Start the ConnectedThread to begin managing a Bluetooth connection
-     *
-     * @param socket The BluetoothSocket on which the connection was made
-     * @param device The BluetoothDevice that has been connected
-     */
-    @RequiresPermission(Manifest.permission.BLUETOOTH)
-    public synchronized void connected(BluetoothSocket socket, final BluetoothDevice device) {
+    @Override
+    public void disconnect() {
         if (D)
-            Log.d(TAG, "connected");
+            Log.d(TAG, "disconnect");
 
-        // Cancel the thread that completed the connection
+        // Cancel any thread attempting to make a connection
         if (mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
@@ -124,6 +86,18 @@ public class BluetoothClassicService extends BluetoothService {
             mConnectedThread.cancel();
             mConnectedThread = null;
         }
+    }
+
+    /**
+     * Start the ConnectedThread to begin managing a Bluetooth connection
+     *
+     * @param socket The BluetoothSocket on which the connection was made
+     * @param device The BluetoothDevice that has been connected
+     */
+    @RequiresPermission(Manifest.permission.BLUETOOTH)
+    private synchronized void connected(BluetoothSocket socket, final BluetoothDevice device) {
+        if (D)
+            Log.d(TAG, "connected");
 
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(socket);
@@ -150,16 +124,9 @@ public class BluetoothClassicService extends BluetoothService {
     public synchronized void stopService() {
         if (D)
             Log.d(TAG, "stop");
-        if (mConnectThread != null) {
-            mConnectThread.cancel();
-            mConnectThread = null;
-        }
-        if (mConnectedThread != null) {
-            mConnectedThread.cancel();
-            mConnectedThread = null;
-        }
-        if (getStatus() != BluetoothStatus.NONE)
-            updateState(BluetoothStatus.NONE);
+
+        disconnect();
+
         if (BluetoothService.mDefaultServiceInstance == this)
             BluetoothService.mDefaultServiceInstance = null;
     }

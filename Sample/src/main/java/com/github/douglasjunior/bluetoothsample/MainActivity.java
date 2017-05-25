@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
     /*
      * Change for the UUID that you want.
      */
-    private static final UUID UUID_DEVICE = UUID.fromString("00001101-0000-1000-8000-00805f9b3411");
+    private static final UUID UUID_DEVICE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private static final UUID UUID_SERVICE = UUID.fromString("35111C00001101-0000-1000-8000-00805F9B34FB");
     private static final UUID UUID_CHARACTERISTIC =  UUID.fromString("35111C00001101-0000-1000-8000-00805F9B34FB");
 
