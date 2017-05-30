@@ -1,9 +1,35 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2015 Douglas Nassif Roma Junior
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.github.douglasjunior.bluetoothsample;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,26 +39,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothConfiguration;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothDeviceDecorator;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
-import com.github.douglasjunior.bluetoothlowenergylibrary.BluetoothLeService;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements BluetoothService.OnBluetoothScanCallback, BluetoothService.OnBluetoothEventCallback, DeviceItemAdapter.OnAdapterItemClickListener {
 
     public static final String TAG = "BluetoothExample";
-
-    /*
-     * Change for the UUID that you want.
-     */
-    private static final UUID UUID_DEVICE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private static final UUID UUID_SERVICE = UUID.fromString("e7810a71-73ae-499d-8c15-faa9aef0c3f2");
-    private static final UUID UUID_CHARACTERISTIC = UUID.fromString("bef8d6c9-9c21-4c9e-b632-bd58c1009f9f");
 
     private ProgressBar pgBar;
     private Menu mMenu;
@@ -63,24 +80,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
         mAdapter.setOnAdapterItemClickListener(this);
         mRecyclerView.setAdapter(mAdapter);
 
-        /* =====================
-               LIBRARY SETUP
-         ======================= */
-
-        BluetoothConfiguration config = new BluetoothConfiguration();
-        config.context = getApplicationContext();
-        config.bluetoothServiceClass = BluetoothLeService.class; //  BluetoothClassicService.class or BluetoothLeService.class
-        config.bufferSize = 1024;
-        config.characterDelimiter = '\n';
-        config.deviceName = "Bluetooth Sample";
-        config.transport = BluetoothDevice.TRANSPORT_LE; // Only for dual-mode devices
-        //config.uuid = null; // When using BluetoothLeService.class set null to show all devices on scan.
-        //config.uuid = UUID_DEVICE;
-        config.uuidService = UUID_SERVICE; // For BLE
-        config.uuidCharacteristic = UUID_CHARACTERISTIC; // For BLE
-        config.callListenersInMainThread = true;
-        BluetoothService.init(config);
-
         mService = BluetoothService.getDefaultInstance();
 
         mService.setOnScanCallback(this);
@@ -95,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mMenu = menu;
         return true;
@@ -103,12 +101,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_scan) {
             startStopScan();
             return true;
@@ -164,9 +158,27 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
     @Override
     public void onStatusChange(BluetoothStatus status) {
         Log.d(TAG, "onStatusChange: " + status);
+        Toast.makeText(this, status.toString(), Toast.LENGTH_SHORT).show();
+
         if (status == BluetoothStatus.CONNECTED) {
-            startActivity(new Intent(this, DeviceActivity.class));
+            CharSequence colors[] = new CharSequence[]{"Try text", "Try picture"};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Select");
+            builder.setItems(colors, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) {
+                        startActivity(new Intent(MainActivity.this, DeviceActivity.class));
+                    } else {
+                        startActivity(new Intent(MainActivity.this, BitmapActivity.class));
+                    }
+                }
+            });
+            builder.setCancelable(false);
+            builder.show();
         }
+
     }
 
     @Override

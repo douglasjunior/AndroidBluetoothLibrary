@@ -24,92 +24,87 @@
 
 package com.github.douglasjunior.bluetoothsample;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothWriter;
+import com.wpx.util.WPXUtils;
 
 /**
- * Created by douglas on 10/04/2017.
+ * Created by douglas on 26/05/17.
  */
 
-public class DeviceActivity extends AppCompatActivity implements BluetoothService.OnBluetoothEventCallback, View.OnClickListener {
-
-    private static final String TAG = "DeviceActivity";
+public class BitmapActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FloatingActionButton mFab;
-    private EditText mEdRead;
-    private EditText mEdWrite;
+    private ImageView mImgOriginal;
+    private ImageView mImgBlackWhite;
 
     private BluetoothService mService;
-    private BluetoothWriter mWriter;
+
+    private Bitmap imageBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_device);
+
+        setContentView(R.layout.activity_bitmap);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(this);
 
-        mEdRead = (EditText) findViewById(R.id.ed_read);
-        mEdWrite = (EditText) findViewById(R.id.ed_write);
-
         mService = BluetoothService.getDefaultInstance();
-        mWriter = new BluetoothWriter(mService);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mService.setOnEventCallback(this);
-    }
+        mImgOriginal = (ImageView) findViewById(R.id.img_original);
+        mImgBlackWhite = (ImageView) findViewById(R.id.img_blackwhite);
 
-    @Override
-    public void onDataRead(byte[] buffer, int length) {
-        Log.d(TAG, "onDataRead: " + new String(buffer, 0, length));
-        mEdRead.append("< " + new String(buffer, 0, length) + "\n");
-    }
+        new Thread() {
+            @Override
+            public void run() {
+                final Bitmap original = BitmapFactory.decodeResource(getResources(), R.drawable.bmw);
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mService.disconnect();
-    }
+                final Bitmap resized = Bitmap.createScaledBitmap(original, 255, 255, false);
 
-    @Override
-    public void onStatusChange(BluetoothStatus status) {
-        Log.d(TAG, "onStatusChange: " + status);
-    }
+                final Bitmap editedBrightness = BitmapHelper.changeBitmapContrastBrightness(resized, 1, 50);
 
-    @Override
-    public void onDeviceName(String deviceName) {
-        Log.d(TAG, "onDeviceName: " + deviceName);
-    }
+                resized.recycle();
 
-    @Override
-    public void onToast(String message) {
-        Log.d(TAG, "onToast");
-    }
+                imageBitmap = editedBrightness;
 
-    @Override
-    public void onDataWrite(byte[] buffer) {
-        Log.d(TAG, "onDataWrite");
-        mEdRead.append("> " + new String(buffer));
+                final Bitmap editedGray = BitmapHelper.changeBitmapBlackWhite(editedBrightness);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mImgOriginal.setImageBitmap(original);
+                        mImgBlackWhite.setImageBitmap(editedGray);
+                    }
+                });
+            }
+        }.start();
     }
 
     @Override
     public void onClick(View v) {
-        mWriter.writeln(mEdWrite.getText().toString());
-        mEdWrite.setText("");
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    byte[] bytes = WPXUtils.decodeBitmap(imageBitmap);
+                    mService.write(bytes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
+
 }
