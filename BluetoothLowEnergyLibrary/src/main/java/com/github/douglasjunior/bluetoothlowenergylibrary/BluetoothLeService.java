@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2015 Douglas Nassif Roma Junior
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.github.douglasjunior.bluetoothlowenergylibrary;
 
 import android.Manifest;
@@ -23,6 +47,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +67,10 @@ public class BluetoothLeService extends BluetoothService {
 
     private final byte[] buffer;
     private int i = 0;
+    private byte[][] bytesBuffer;
+    private int bufferIndex = 0;
+
+    private int maxTransferBytes = 20;
 
     protected BluetoothLeService(BluetoothConfiguration config) {
         super(config);
@@ -51,6 +80,19 @@ public class BluetoothLeService extends BluetoothService {
     }
 
     private final BluetoothGattCallback btleGattCallback = new BluetoothGattCallback() {
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            super.onMtuChanged(gatt, mtu, status);
+            Log.v(TAG, "onMtuChanged: " + mtu + " status: " + status);
+            // Receive the requested MTU size.
+            // See also https://stackoverflow.com/questions/24135682/android-sending-data-20-bytes-by-ble
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                // It discounts 3 bytes of metadata.
+                maxTransferBytes = mtu - 3;
+            }
+        }
+
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             final byte[] data = characteristic.getValue();
@@ -75,8 +117,9 @@ public class BluetoothLeService extends BluetoothService {
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
             final byte[] data = characteristic.getValue();
-            Log.v(TAG, "onCharacteristicWrite: " + new String(data));
-            if (BluetoothGatt.GATT_SUCCESS == status) {
+            //Log.v(TAG, "onCharacteristicWrite status: " + status + " data: " + new String(data));
+            Log.v(TAG, "onCharacteristicWrite status: " + status + " data: " + data.length);
+            if (BluetoothGatt.GATT_SUCCESS == status || status == 11) {
                 if (onEventCallback != null)
                     runOnMainThread(new Runnable() {
                         @Override
@@ -84,6 +127,7 @@ public class BluetoothLeService extends BluetoothService {
                             onEventCallback.onDataWrite(data);
                         }
                     });
+                writeCharacteristic();
             } else {
                 System.err.println("onCharacteristicWrite error " + status);
             }
@@ -145,12 +189,22 @@ public class BluetoothLeService extends BluetoothService {
             if (BluetoothGatt.GATT_SUCCESS == status) {
                 for (BluetoothGattService service : gatt.getServices()) {
                     Log.v(TAG, "Service: " + service.getUuid());
-                    if (service.getUuid().equals(mConfig.uuidService)) {
+                    if (mConfig.uuidService == null || service.getUuid().equals(mConfig.uuidService)) {
                         for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                            Log.v(TAG, "Characteristic: " + characteristic.getUuid() + " write: " + (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE));
+                            final int props = characteristic.getProperties();
+                            Log.v(TAG, "Characteristic: " + characteristic.getUuid() +
+                                    " PROPERTY_WRITE: " + (props & BluetoothGattCharacteristic.PROPERTY_WRITE) +
+                                    " PROPERTY_WRITE_NO_RESPONSE: " + (props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE));
                             if (characteristic.getUuid().equals(mConfig.uuidCharacteristic)) {
                                 characteristicRxTx = characteristic;
                                 gatt.setCharacteristicNotification(characteristic, true);
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    // Request the MTU size to device.
+                                    // See also https://stackoverflow.com/questions/24135682/android-sending-data-20-bytes-by-ble
+                                    boolean requestMtu = bluetoothGatt.requestMtu(512);
+                                    Log.v(TAG, "requestMtu: " + requestMtu);
+                                }
 
                                 updateDeviceName(gatt.getDevice());
                                 updateState(BluetoothStatus.CONNECTED);
@@ -270,7 +324,6 @@ public class BluetoothLeService extends BluetoothService {
             if (bluetoothGatt == null) {
                 bluetoothGatt = bluetoothDevice.connectGatt(mConfig.context, false, btleGattCallback);
             }
-
         }
     }
 
@@ -403,12 +456,57 @@ public class BluetoothLeService extends BluetoothService {
         bluetoothGatt = null;
     }
 
+    /**
+     * Splits the bytes into packets according to the MTU size of the device, and writes the packets sequentially.
+     *
+     * See also https://stackoverflow.com/questions/24135682/android-sending-data-20-bytes-by-ble
+     *
+     * @param data
+     */
     public void write(byte[] data) {
-        // Log.v(TAG, "write: " + new String(data));
+        Log.v(TAG, "write: " + data.length);
         if (bluetoothGatt != null && characteristicRxTx != null && mStatus == BluetoothStatus.CONNECTED) {
-            characteristicRxTx.setValue(data);
-            bluetoothGatt.writeCharacteristic(characteristicRxTx);
+            if (data.length <= maxTransferBytes) {
+                bufferIndex = 0;
+                bytesBuffer = new byte[1][data.length];
+                bytesBuffer[0] = data;
+            } else {
+                bufferIndex = 0;
+                int bufferSize = (data.length / maxTransferBytes) + 1;
+                bytesBuffer = new byte[bufferSize][maxTransferBytes];
+
+                for (int i = 0; i < bytesBuffer.length; i++) {
+                    int start = i * maxTransferBytes;
+                    int end = start + maxTransferBytes;
+                    if (start >= data.length)
+                        break;
+                    if (end > data.length)
+                        end = data.length;
+                    bytesBuffer[i] = Arrays.copyOfRange(data, start, end);
+                }
+            }
+            writeCharacteristic();
         }
+    }
+
+    /**
+     * Writes next packet to the Characteristic.
+     *
+     */
+    private void writeCharacteristic() {
+        Log.v(TAG, "writeCharacteristic " + bufferIndex);
+        if (bufferIndex >= bytesBuffer.length)
+            return;
+
+        byte[] bytes = bytesBuffer[bufferIndex];
+
+        boolean setValue = characteristicRxTx.setValue(bytes);
+        Log.v(TAG, "setValue: " + setValue);
+
+        boolean writeCharacteristic = bluetoothGatt.writeCharacteristic(characteristicRxTx);
+        Log.v(TAG, "writeCharacteristic: " + writeCharacteristic);
+
+        bufferIndex++;
     }
 
 }
