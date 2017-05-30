@@ -84,6 +84,10 @@ service.setOnEventCallback(new BluetoothService.OnBluetoothEventCallback() {
 service.connect(device); // See also service.disconnect();
 ```
 
+### Complete example
+
+See the [sample project](https://github.com/douglasjunior/AndroidBluetoothLibrary/tree/master/Sample/src/main/java/com/github/douglasjunior/bluetoothsample).
+
 ### Writing
 
 ```java
