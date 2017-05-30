@@ -113,14 +113,14 @@ writer.writeln("Your text here");
    2.1. Bluetooth Classic
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.2'
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.3'
      }
      ```
     
    2.2. Bluetooth Low Energy
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.2'
+       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.3'
      }
      ```
  
