@@ -3,6 +3,7 @@
 [![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/AndroidBluetoothLibrary/blob/master/LICENSE)
 [![Release](https://jitpack.io/v/douglasjunior/AndroidBluetoothLibrary.svg)](https://jitpack.io/#douglasjunior/AndroidBluetoothLibrary)
 [![Downloads](https://jitpack.io/v/douglasjunior/AndroidBluetoothLibrary/month.svg)](#download)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20Bluetooth%20Library-yellow.svg?style=flat)](http://android-arsenal.com/details/1/5821)
 
 A Library for easy implementation of Serial Bluetooth Classic and Low Energy on Android.
 
@@ -87,10 +88,6 @@ service.setOnEventCallback(new BluetoothService.OnBluetoothEventCallback() {
 service.connect(device); // See also service.disconnect();
 ```
 
-### Complete example
-
-See the [sample project](https://github.com/douglasjunior/AndroidBluetoothLibrary/tree/master/Sample/src/main/java/com/github/douglasjunior/bluetoothsample).
-
 ### Writing
 
 ```java
@@ -98,6 +95,10 @@ BluetoothWriter writer = new BluetoothWriter(service);
 
 writer.writeln("Your text here");
 ```
+
+### Complete example
+
+See the [sample project](https://github.com/douglasjunior/AndroidBluetoothLibrary/tree/master/Sample/src/main/java/com/github/douglasjunior/bluetoothsample).
 
 ## Download 
 
