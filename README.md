@@ -10,6 +10,8 @@ A Library for easy implementation of Serial Bluetooth Classic and Low Energy on 
 - Bluetooth Classic working from Android 2.1 (API 7)
 - Bluetooth Low Energy working from Android 4.3 (API 18)
 
+*Looking for `React Native` version? See also [react-native-easybluetooth-classic](https://github.com/douglasjunior/react-native-easybluetooth-classic) and [react-native-easybluetooth-le](https://github.com/douglasjunior/react-native-easybluetooth-le)*
+
 ## Use
 
 ### Configuration
