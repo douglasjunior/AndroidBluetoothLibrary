@@ -5,7 +5,7 @@
 [![Downloads](https://jitpack.io/v/douglasjunior/AndroidBluetoothLibrary/month.svg)](#download)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20Bluetooth%20Library-yellow.svg?style=flat)](http://android-arsenal.com/details/1/5821)
 
-A Library for easy implementation of Serial Bluetooth Classic and Low Energy on Android.
+A Library for easy implementation of Serial Bluetooth Classic and Low Energy on Android. 💙
 
 - Bluetooth Classic working from Android 2.1 (API 7)
 - Bluetooth Low Energy working from Android 4.3 (API 18)
