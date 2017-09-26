@@ -65,10 +65,10 @@ public class BluetoothLeService extends BluetoothService {
     private BluetoothGatt bluetoothGatt;
     private BluetoothGattCharacteristic characteristicRxTx;
 
-    private final byte[] buffer;
-    private int i = 0;
-    private byte[][] bytesBuffer;
-    private int bufferIndex = 0;
+    private final byte[] readBuffer;
+    private int readBufferIndex = 0;
+    private byte[][] writeBuffer;
+    private int writeBufferIndex = 0;
 
     private int maxTransferBytes = 20;
 
@@ -76,7 +76,7 @@ public class BluetoothLeService extends BluetoothService {
         super(config);
         BluetoothManager btManager = (BluetoothManager) config.context.getSystemService(Context.BLUETOOTH_SERVICE);
         btAdapter = btManager.getAdapter();
-        buffer = new byte[config.bufferSize];
+        readBuffer = new byte[config.bufferSize];
     }
 
     private final BluetoothGattCallback btleGattCallback = new BluetoothGattCallback() {
@@ -252,31 +252,34 @@ public class BluetoothLeService extends BluetoothService {
     private void readData(byte[] data) {
         final byte byteDelimiter = (byte) mConfig.characterDelimiter;
         for (byte temp : data) {
-            /*
-            Verifica se está no momento de despachar o buffer
-             */
-            if (temp == byteDelimiter || i >= buffer.length) {
-                if (i > 0) {
-                    // Send the obtained bytes to the UI Activity
-                    if (onEventCallback != null) {
-                        final int finalI = i;
-                        runOnMainThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                onEventCallback.onDataRead(buffer, finalI);
-                            }
-                        });
-                    }
-                    i = 0;
+
+            if (temp == byteDelimiter) {
+                if (readBufferIndex > 0) {
+                    dispatchBuffer(readBuffer, readBufferIndex);
+                    readBufferIndex = 0;
                 }
+                continue;
             }
-            /*
-            Caso contrário, armazena o byte recebido
-             */
-            else {
-                buffer[i] = temp;
-                i++;
+            if (readBufferIndex == readBuffer.length - 1) {
+                dispatchBuffer(readBuffer, readBufferIndex);
+                readBufferIndex = 0;
             }
+            readBuffer[readBufferIndex] = temp;
+            readBufferIndex++;
+
+        }
+    }
+
+    private void dispatchBuffer(byte[] buffer, int i) {
+        final byte[] data = new byte[i];
+        System.arraycopy(buffer, 0, data, 0, i);
+        if (onEventCallback != null) {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    onEventCallback.onDataRead(data, data.length);
+                }
+            });
         }
     }
 
@@ -467,22 +470,22 @@ public class BluetoothLeService extends BluetoothService {
         Log.v(TAG, "write: " + data.length);
         if (bluetoothGatt != null && characteristicRxTx != null && mStatus == BluetoothStatus.CONNECTED) {
             if (data.length <= maxTransferBytes) {
-                bufferIndex = 0;
-                bytesBuffer = new byte[1][data.length];
-                bytesBuffer[0] = data;
+                writeBufferIndex = 0;
+                writeBuffer = new byte[1][data.length];
+                writeBuffer[0] = data;
             } else {
-                bufferIndex = 0;
+                writeBufferIndex = 0;
                 int bufferSize = (data.length / maxTransferBytes) + 1;
-                bytesBuffer = new byte[bufferSize][maxTransferBytes];
+                writeBuffer = new byte[bufferSize][maxTransferBytes];
 
-                for (int i = 0; i < bytesBuffer.length; i++) {
+                for (int i = 0; i < writeBuffer.length; i++) {
                     int start = i * maxTransferBytes;
                     int end = start + maxTransferBytes;
                     if (start >= data.length)
                         break;
                     if (end > data.length)
                         end = data.length;
-                    bytesBuffer[i] = Arrays.copyOfRange(data, start, end);
+                    writeBuffer[i] = Arrays.copyOfRange(data, start, end);
                 }
             }
             writeCharacteristic();
@@ -494,11 +497,11 @@ public class BluetoothLeService extends BluetoothService {
      *
      */
     private void writeCharacteristic() {
-        Log.v(TAG, "writeCharacteristic " + bufferIndex);
-        if (bufferIndex >= bytesBuffer.length)
+        Log.v(TAG, "writeCharacteristic " + writeBufferIndex);
+        if (writeBufferIndex >= writeBuffer.length)
             return;
 
-        byte[] bytes = bytesBuffer[bufferIndex];
+        byte[] bytes = writeBuffer[writeBufferIndex];
 
         boolean setValue = characteristicRxTx.setValue(bytes);
         Log.v(TAG, "setValue: " + setValue);
@@ -506,7 +509,7 @@ public class BluetoothLeService extends BluetoothService {
         boolean writeCharacteristic = bluetoothGatt.writeCharacteristic(characteristicRxTx);
         Log.v(TAG, "writeCharacteristic: " + writeCharacteristic);
 
-        bufferIndex++;
+        writeBufferIndex++;
     }
 
 }
