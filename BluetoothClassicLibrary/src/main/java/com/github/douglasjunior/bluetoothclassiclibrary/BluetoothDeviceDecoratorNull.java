@@ -41,7 +41,7 @@ public class BluetoothDeviceDecoratorNull extends BluetoothDeviceDecorator {
 
     @Override
     public String getName() {
-        return "Nenhum dispositivo encontrado.";
+        return "No device found";
     }
 
     @Override

@@ -142,9 +142,9 @@ public class BluetoothLeService extends BluetoothService {
             if (status != BluetoothGatt.GATT_SUCCESS || newState == BluetoothProfile.STATE_DISCONNECTED) {
                 gatt.close();
                 if (mStatus == BluetoothStatus.NONE || mStatus == BluetoothStatus.CONNECTING)
-                    makeToast("Não foi possível conectar ao dispositivo");
+                    makeToast("Unable to connect to device");
                 else if (mStatus == BluetoothStatus.CONNECTED)
-                    makeToast("Conexão perdida com o dispositivo");
+                    makeToast("Connection lost");
                 updateState(BluetoothStatus.NONE);
             } else {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
