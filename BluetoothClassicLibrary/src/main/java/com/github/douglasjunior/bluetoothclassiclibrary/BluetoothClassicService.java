@@ -184,7 +184,7 @@ public class BluetoothClassicService extends BluetoothService {
             runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    onEventCallback.onToast("Não foi possível conectar ao dispositivo.");
+                    onEventCallback.onToast("Could not connect to device");
                 }
             });
     }
@@ -201,7 +201,7 @@ public class BluetoothClassicService extends BluetoothService {
             runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    onEventCallback.onToast("Conexão perdida com o dispositivo.");
+                    onEventCallback.onToast("Connection lost");
                 }
             });
     }
