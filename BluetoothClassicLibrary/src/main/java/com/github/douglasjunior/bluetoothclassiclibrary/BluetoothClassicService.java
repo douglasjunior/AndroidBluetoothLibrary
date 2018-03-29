@@ -154,6 +154,15 @@ public class BluetoothClassicService extends BluetoothService {
     }
 
     /**
+     * Required by BluetoothLeService.class and not supported in BluetoothClassicService.class.
+     */
+    @Override
+    public void requestConnectionPriority(int connectionPriority) {
+        throw new UnsupportedOperationException("requestConnectionPriority is a feature in Bluetooth Low Energy " +
+                "and not supported in BluetoothClassic");
+    }
+
+    /**
      * Write to the ConnectedThread in an unsynchronized manner
      *
      * @param out The bytes to write

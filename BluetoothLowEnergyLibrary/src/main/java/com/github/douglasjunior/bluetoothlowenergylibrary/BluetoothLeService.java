@@ -36,6 +36,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
 
@@ -204,6 +205,11 @@ public class BluetoothLeService extends BluetoothService {
                                     // See also https://stackoverflow.com/questions/24135682/android-sending-data-20-bytes-by-ble
                                     boolean requestMtu = bluetoothGatt.requestMtu(512);
                                     Log.v(TAG, "requestMtu: " + requestMtu);
+
+                                    // Request a specific connection priority.
+                                    // CONNECTION_PRIORITY_BALANCED is the default value if no connection parameter update is requested
+                                    if (mConfig.connectionPriority != BluetoothGatt.CONNECTION_PRIORITY_BALANCED)
+                                        requestConnectionPriority(mConfig.connectionPriority);
                                 }
 
                                 updateDeviceName(gatt.getDevice());
@@ -457,6 +463,19 @@ public class BluetoothLeService extends BluetoothService {
             bluetoothGatt.close();
         }
         bluetoothGatt = null;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void requestConnectionPriority(int connectionPriority) {
+        if (bluetoothGatt != null) {
+            if (connectionPriority >= BluetoothGatt.CONNECTION_PRIORITY_BALANCED
+                    && connectionPriority <= BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER) {
+                boolean requestConnectionPriority = bluetoothGatt.requestConnectionPriority(connectionPriority);
+                Log.v(TAG, "requestConnectionPriority("+connectionPriority+"): " + requestConnectionPriority);
+            } else
+                Log.e(TAG, "requestConnectionPriority("+connectionPriority+"): ERROR - connectionPriority not within valid range");
+        }
     }
 
     /**
