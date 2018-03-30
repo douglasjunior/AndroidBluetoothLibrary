@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.bluetooth.BluetoothGatt;
 
 import java.util.UUID;
 
@@ -99,6 +100,19 @@ public class BluetoothConfiguration {
      * or call in the Thread where the event occurs (false).
      */
     public boolean callListenersInMainThread = true;
+
+    /**
+     * Required for {@link BluetoothLeService} <br/>
+     * Request a specific connection priority. Must be one of
+     * {@link BluetoothGatt#CONNECTION_PRIORITY_BALANCED}, {@link BluetoothGatt#CONNECTION_PRIORITY_HIGH}
+     * or {@link BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER}.
+     *
+     * An application should only request high priority connection parameters to transfer
+     * large amounts of data over LE quickly. Once the transfer is complete, the application
+     * should request {@link BluetoothGatt#CONNECTION_PRIORITY_BALANCED} connection parameters
+     * to reduce energy use.
+     */
+    public int connectionPriority;
 
     public BluetoothConfiguration() {
         setDefaultTransport();

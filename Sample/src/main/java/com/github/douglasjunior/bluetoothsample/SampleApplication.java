@@ -26,6 +26,7 @@ package com.github.douglasjunior.bluetoothsample;
 
 import android.app.Application;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothClassicService;
 import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothConfiguration;
@@ -65,6 +66,10 @@ public class SampleApplication extends Application {
         config.uuidService = UUID_SERVICE; // For BLE
         config.uuidCharacteristic = UUID_CHARACTERISTIC; // For BLE
         config.transport = BluetoothDevice.TRANSPORT_LE; // Only for dual-mode devices
+
+        // For BLE
+        config.connectionPriority = BluetoothGatt.CONNECTION_PRIORITY_HIGH; // Automatically request connection priority just after connection is through.
+        //or request connection priority manually, mService.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
 
         BluetoothService.init(config);
     }

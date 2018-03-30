@@ -158,6 +158,11 @@ public abstract class BluetoothService {
      */
     public abstract void stopService();
 
+    /**
+     * Request the connection priority.
+     */
+    public abstract void requestConnectionPriority(int connectionPriority);
+
     /* ====================================
                 STATICS METHODS
      ====================================== */
