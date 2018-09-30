@@ -26,12 +26,13 @@ config.deviceName = "Your App Name";
 config.callListenersInMainThread = true;
 
 // Bluetooth Classic
-config.uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // Set null to find all devices on scan.
+config.uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // required
 
 // Bluetooth LE
 config.uuidService = UUID.fromString("e7810a71-73ae-499d-8c15-faa9aef0c3f2"); 
 config.uuidCharacteristic = UUID.fromString("bef8d6c9-9c21-4c9e-b632-bd58c1009f9f"); 
 config.transport = BluetoothDevice.TRANSPORT_LE; // Only for dual-mode devices
+config.uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // Used to filter found devices. Set null to find all devices.
 
 BluetoothService.init(config);
 ```
