@@ -16,10 +16,11 @@ A Library for easy implementation of Serial Bluetooth Classic and Low Energy on 
 
 ### Configuration
 
+#### Bluetooth Classic
 ```java
 BluetoothConfiguration config = new BluetoothConfiguration();
 config.context = getApplicationContext();
-config.bluetoothServiceClass = BluetoothLeService.class; // BluetoothClassicService.class or BluetoothLeService.class
+config.bluetoothServiceClass = BluetoothClassicService.class;
 config.bufferSize = 1024;
 config.characterDelimiter = '\n';
 config.deviceName = "Your App Name";
@@ -28,7 +29,19 @@ config.callListenersInMainThread = true;
 // Bluetooth Classic
 config.uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // Required
 
-// Bluetooth LE
+BluetoothService.init(config);
+```
+
+#### Bluetooth Low Energy
+```java
+BluetoothConfiguration config = new BluetoothConfiguration();
+config.context = getApplicationContext();
+config.bluetoothServiceClass = BluetoothLeService.class;
+config.bufferSize = 1024;
+config.characterDelimiter = '\n';
+config.deviceName = "Your App Name";
+config.callListenersInMainThread = true;
+
 config.uuidService = UUID.fromString("e7810a71-73ae-499d-8c15-faa9aef0c3f2"); // Required
 config.uuidCharacteristic = UUID.fromString("bef8d6c9-9c21-4c9e-b632-bd58c1009f9f"); // Required
 config.transport = BluetoothDevice.TRANSPORT_LE; // Required for dual-mode devices
