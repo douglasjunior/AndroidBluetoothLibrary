@@ -132,14 +132,14 @@ See the [sample project](https://github.com/douglasjunior/AndroidBluetoothLibrar
    2.1. Bluetooth Classic
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.5'
+       implementation 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothClassicLibrary:0.3.5'
      }
      ```
     
    2.2. Bluetooth Low Energy
      ```javascript
      dependencies {
-       compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.5'
+       implementation 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.5'
      }
      ```
  
