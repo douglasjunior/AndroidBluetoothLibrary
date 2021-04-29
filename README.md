@@ -155,10 +155,10 @@ See the [sample project](https://github.com/douglasjunior/AndroidBluetoothLibrar
 </manifest>
 ```
 
-## Known issues
+## Known Issues / Troubleshooting
 
-- Location needs to be enabled for Bluetooth Low Energy Scanning on Android 6.0 http://stackoverflow.com/a/33045489/2826279
- 
+- Scanning will not detect bluetooth devices if the user has denied Location Privacy Permission to your app. This library does not test for the permission and will not raise errors. (Android 6.0+) See: http://stackoverflow.com/a/33045489/2826279
+
 ## Contribute
 
 New features, bug fixes and improvements are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/AndroidBluetoothLibrary/issues).
