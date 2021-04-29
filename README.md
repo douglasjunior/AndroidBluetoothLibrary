@@ -155,7 +155,11 @@ See the [sample project](https://github.com/douglasjunior/AndroidBluetoothLibrar
 </manifest>
 ```
 
-## Known Issues / Troubleshooting
+<h2>
+    <a id="user-content-known-issues--troubleshooting" class="anchor" aria-hidden="true" href="#known-issues">
+        Known Issues / Troubleshooting
+    </a>
+</h2>
 
 - Scanning will not detect bluetooth devices if the user has denied Location Privacy Permission to your app. This library does not test for the permission and will not raise errors. (Android 6.0+) See: http://stackoverflow.com/a/33045489/2826279
 
