@@ -1,0 +1,395 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <!-- Background Cosmic Gradients -->
+    <radialGradient id="nebula-violet" cx="18%" cy="18%" r="65%">
+      <stop offset="0%" stop-color="#5842d6" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#04050d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebula-cyan" cx="84%" cy="24%" r="60%">
+      <stop offset="0%" stop-color="#1882be" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#04050d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebula-pink" cx="45%" cy="94%" r="55%">
+      <stop offset="0%" stop-color="#be3c78" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#04050d" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Linear Gradients -->
+    <linearGradient id="cosmic-stripe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8b7bff"/>
+      <stop offset="35%" stop-color="#3fd0ff"/>
+      <stop offset="70%" stop-color="#ff6a8e"/>
+      <stop offset="100%" stop-color="#ffd56a"/>
+    </linearGradient>
+    <linearGradient id="title-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#e9ebfa"/>
+      <stop offset="100%" stop-color="#3fd0ff"/>
+    </linearGradient>
+    <linearGradient id="frame-border" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3fd0ff" stop-opacity="0.65"/>
+      <stop offset="50%" stop-color="#8b7bff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff6a8e" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="bt-core-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1b3e"/>
+      <stop offset="50%" stop-color="#091228"/>
+      <stop offset="100%" stop-color="#141838"/>
+    </linearGradient>
+    <linearGradient id="hud-card-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(19, 23, 54, 0.85)"/>
+      <stop offset="100%" stop-color="rgba(10, 12, 29, 0.92)"/>
+    </linearGradient>
+    <linearGradient id="terminal-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(6, 8, 20, 0.95)"/>
+      <stop offset="100%" stop-color="rgba(10, 12, 28, 0.98)"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-violet" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="core-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <style>
+      <![CDATA[
+      @media (prefers-reduced-motion: no-preference) {
+        .anim-star-twinkle {
+          animation: starTwinkle 4s ease-in-out infinite;
+        }
+        .anim-radio-1 {
+          animation: radioWave 3s cubic-bezier(0.1, 0.5, 0.4, 1) infinite;
+          transform-origin: 960px 225px;
+        }
+        .anim-radio-2 {
+          animation: radioWave 3s cubic-bezier(0.1, 0.5, 0.4, 1) 1s infinite;
+          transform-origin: 960px 225px;
+        }
+        .anim-radio-3 {
+          animation: radioWave 3s cubic-bezier(0.1, 0.5, 0.4, 1) 2s infinite;
+          transform-origin: 960px 225px;
+        }
+        .anim-pulse-beacon {
+          animation: pulseBeacon 2s ease-in-out infinite;
+        }
+        .anim-caret {
+          animation: caretBlink 1s steps(2, start) infinite;
+        }
+        .anim-data-flow {
+          animation: dataPacketFlow 4s linear infinite;
+        }
+        .anim-float-hud {
+          animation: hudFloat 5s ease-in-out infinite;
+        }
+      }
+
+      @keyframes starTwinkle {
+        0%, 100% { opacity: 0.3; transform: scale(0.9); }
+        50% { opacity: 0.9; transform: scale(1.15); }
+      }
+
+      @keyframes radioWave {
+        0% {
+          r: 38px;
+          opacity: 0.9;
+          stroke-width: 2.2px;
+        }
+        70% {
+          opacity: 0.35;
+        }
+        100% {
+          r: 105px;
+          opacity: 0;
+          stroke-width: 0.8px;
+        }
+      }
+
+      @keyframes pulseBeacon {
+        0%, 100% {
+          opacity: 0.4;
+          transform: scale(0.9);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.25);
+        }
+      }
+
+      @keyframes caretBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+
+      @keyframes dataPacketFlow {
+        0% {
+          stroke-dashoffset: 40;
+        }
+        100% {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      @keyframes hudFloat {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+      ]]>
+    </style>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1280" height="640" rx="20" fill="#04050d"/>
+  <rect width="1280" height="640" rx="20" fill="url(#nebula-violet)"/>
+  <rect width="1280" height="640" rx="20" fill="url(#nebula-cyan)"/>
+  <rect width="1280" height="640" rx="20" fill="url(#nebula-pink)"/>
+
+  <!-- Blueprint Grid -->
+  <g opacity="0.10">
+    <line x1="80" y1="0" x2="80" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="360" y1="0" x2="360" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="520" y1="0" x2="520" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="680" y1="0" x2="680" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="840" y1="0" x2="840" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="1000" y1="0" x2="1000" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="1160" y1="0" x2="1160" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="80" x2="1280" y2="80" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="200" x2="1280" y2="200" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="320" x2="1280" y2="320" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="440" x2="1280" y2="440" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="560" x2="1280" y2="560" stroke="#8b7bff" stroke-width="1"/>
+  </g>
+
+  <!-- Stars -->
+  <g class="anim-star-twinkle" fill="#ffd56a">
+    <circle cx="150" cy="85" r="1.5" opacity="0.6"/>
+    <circle cx="270" cy="470" r="1.2" opacity="0.4"/>
+    <circle cx="610" cy="115" r="1.8" opacity="0.7"/>
+    <circle cx="700" cy="530" r="1.4" opacity="0.5"/>
+    <circle cx="1190" cy="130" r="2.0" opacity="0.8"/>
+    <circle cx="1140" cy="570" r="1.3" opacity="0.4"/>
+  </g>
+  <g fill="#3fd0ff">
+    <circle cx="120" cy="330" r="1.2" opacity="0.5"/>
+    <circle cx="570" cy="380" r="1.6" opacity="0.6"/>
+    <circle cx="730" cy="75" r="1.2" opacity="0.4"/>
+    <circle cx="1230" cy="410" r="1.5" opacity="0.7"/>
+  </g>
+
+  <!-- Outer Frame & Bottom Cosmic Stripe -->
+  <rect x="1" y="1" width="1278" height="638" rx="19" fill="none" stroke="rgba(150, 160, 255, 0.16)" stroke-width="2"/>
+  <rect x="0" y="635" width="1280" height="5" fill="url(#cosmic-stripe)"/>
+
+  <!-- ==================== LEFT COLUMN: CONTENT ==================== -->
+  <g transform="translate(80, 0)">
+    <!-- Pill Category -->
+    <g transform="translate(0, 88)">
+      <rect width="320" height="32" rx="16" fill="rgba(139, 123, 255, 0.12)" stroke="#8b7bff" stroke-width="1.2"/>
+      <circle cx="18" cy="16" r="4" fill="#3fd0ff"/>
+      <text x="32" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#e9ebfa" letter-spacing="1">ANDROID · BLUETOOTH CLASSIC &amp; BLE</text>
+    </g>
+
+    <!-- Main Title -->
+    <text x="0" y="178" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="800" fill="#ffffff" letter-spacing="-0.5">
+      Android
+    </text>
+    <text x="0" y="232" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="800" fill="url(#title-grad)" letter-spacing="-0.5">
+      BluetoothLibrary
+    </text>
+
+    <!-- Subtitle -->
+    <text x="0" y="278" font-family="system-ui, -apple-system, sans-serif" font-size="17" fill="#9ba1c7" font-weight="400">
+      Serial Bluetooth Classic and Low Energy made easy for Android.
+    </text>
+    <text x="0" y="304" font-family="system-ui, -apple-system, sans-serif" font-size="17" fill="#838ab2" font-weight="400">
+      Unified reactive API for scanning, pairing, and hardware serial I/O.
+    </text>
+
+    <!-- Feature Cards -->
+    <g transform="translate(0, 340)">
+      <!-- Card 1: Dual Engine -->
+      <g transform="translate(0, 0)">
+        <rect width="570" height="54" rx="12" fill="rgba(13, 15, 36, 0.65)" stroke="rgba(150, 160, 255, 0.14)" stroke-width="1"/>
+        <circle cx="27" cy="27" r="11" fill="rgba(63, 208, 255, 0.15)"/>
+        <text x="27" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#3fd0ff" text-anchor="middle">⚡</text>
+        <text x="52" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#e9ebfa">Dual Engine: Classic &amp; Low Energy</text>
+        <text x="52" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Bluetooth Classic SPP (API 7+) and BLE GATT (API 18+) with unified control</text>
+      </g>
+
+      <!-- Card 2: Unified Serial Stream -->
+      <g transform="translate(0, 68)">
+        <rect width="570" height="54" rx="12" fill="rgba(13, 15, 36, 0.65)" stroke="rgba(150, 160, 255, 0.14)" stroke-width="1"/>
+        <circle cx="27" cy="27" r="11" fill="rgba(139, 123, 255, 0.15)"/>
+        <text x="27" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#8b7bff" text-anchor="middle">🔄</text>
+        <text x="52" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#e9ebfa">Framed Serial Stream &amp; Delimiters</text>
+        <text x="52" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Buffer management, custom delimiter characters, and chunked byte writing</text>
+      </g>
+
+      <!-- Card 3: Background Threading -->
+      <g transform="translate(0, 136)">
+        <rect width="570" height="54" rx="12" fill="rgba(13, 15, 36, 0.65)" stroke="rgba(150, 160, 255, 0.14)" stroke-width="1"/>
+        <circle cx="27" cy="27" r="11" fill="rgba(255, 106, 142, 0.15)"/>
+        <text x="27" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#ff6a8e" text-anchor="middle">🛡️</text>
+        <text x="52" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#e9ebfa">Thread-Safe Asynchronous I/O</text>
+        <text x="52" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Non-blocking background sockets with automatic Main Thread UI dispatch</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ==================== RIGHT COLUMN: BLUETOOTH HUD ==================== -->
+  <g transform="translate(710, 65)">
+    <!-- Main HUD Outer Frame -->
+    <rect width="490" height="510" rx="22" fill="url(#hud-card-grad)" stroke="url(#frame-border)" stroke-width="1.8"/>
+
+    <!-- Top Window Title Bar -->
+    <g transform="translate(20, 18)">
+      <!-- Window Controls -->
+      <circle cx="6" cy="10" r="4.5" fill="#ff6a8e" opacity="0.8"/>
+      <circle cx="22" cy="10" r="4.5" fill="#ffd56a" opacity="0.8"/>
+      <circle cx="38" cy="10" r="4.5" fill="#34d399" opacity="0.8"/>
+
+      <text x="65" y="14" font-family="ui-monospace, monospace" font-size="11.5" font-weight="700" fill="#9ba1c7" letter-spacing="0.5">
+        BLUETOOTH SERIAL MONITOR
+      </text>
+
+      <!-- Wireless Tag -->
+      <g transform="translate(370, 0)">
+        <rect width="80" height="20" rx="10" fill="rgba(63, 208, 255, 0.15)" stroke="#3fd0ff" stroke-width="0.8"/>
+        <text x="40" y="14" font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#3fd0ff" text-anchor="middle">RF 2.4 GHz</text>
+      </g>
+    </g>
+
+    <!-- Divider -->
+    <line x1="16" y1="46" x2="474" y2="46" stroke="rgba(150, 160, 255, 0.12)" stroke-width="1"/>
+
+    <!-- Device Info Cards Row -->
+    <g transform="translate(20, 58)">
+      <!-- Left Card: Target Peripheral -->
+      <g transform="translate(0, 0)">
+        <rect width="216" height="54" rx="10" fill="rgba(13, 15, 36, 0.7)" stroke="rgba(150, 160, 255, 0.12)" stroke-width="1"/>
+        <text x="12" y="20" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" fill="#838ab2" letter-spacing="0.5">TARGET PERIPHERAL</text>
+        <text x="12" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#e9ebfa">HC-05 / ESP32-BLE</text>
+        <text x="175" y="39" font-family="ui-monospace, monospace" font-size="11" fill="#34d399" font-weight="600">-58 dBm</text>
+      </g>
+
+      <!-- Right Card: Link Status -->
+      <g transform="translate(234, 0)">
+        <rect width="216" height="54" rx="10" fill="rgba(13, 15, 36, 0.7)" stroke="rgba(150, 160, 255, 0.12)" stroke-width="1"/>
+        <text x="12" y="20" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" fill="#838ab2" letter-spacing="0.5">SERVICE STATE</text>
+        <!-- Connected Beacon -->
+        <circle class="anim-pulse-beacon" cx="20" cy="37" r="4.5" fill="#34d399"/>
+        <text x="32" y="41" font-family="ui-monospace, monospace" font-size="12.5" font-weight="700" fill="#34d399">CONNECTED</text>
+        <text x="160" y="40" font-family="ui-monospace, monospace" font-size="11" fill="#8b7bff" font-weight="600">SPP/GATT</text>
+      </g>
+    </g>
+
+    <!-- ==================== CENTRAL BLUETOOTH CORE ==================== -->
+    <g transform="translate(0, 120)">
+      <!-- Concentric Radiating RF Waves -->
+      <circle class="anim-radio-1" cx="245" cy="85" r="38" fill="none" stroke="#3fd0ff" stroke-width="2"/>
+      <circle class="anim-radio-2" cx="245" cy="85" r="38" fill="none" stroke="#8b7bff" stroke-width="2"/>
+      <circle class="anim-radio-3" cx="245" cy="85" r="38" fill="none" stroke="#ff6a8e" stroke-width="2"/>
+
+      <!-- Peripheral Left Node (Classic RFCOMM) -->
+      <g transform="translate(68, 62)">
+        <circle cx="24" cy="24" r="22" fill="#0d112b" stroke="#8b7bff" stroke-width="1.2"/>
+        <text x="24" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="14" text-anchor="middle">📡</text>
+        <text x="24" y="58" font-family="ui-monospace, monospace" font-size="9.5" fill="#9ba1c7" text-anchor="middle">RFCOMM SPP</text>
+      </g>
+
+      <!-- Central Core Halo & Orb -->
+      <g transform="translate(245, 85)">
+        <!-- Outer Glow -->
+        <circle cx="0" cy="0" r="44" fill="#0c1836" stroke="#3fd0ff" stroke-width="2" filter="url(#core-glow)"/>
+        <!-- Inner Core -->
+        <circle cx="0" cy="0" r="36" fill="url(#bt-core-grad)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.2"/>
+
+        <!-- Bluetooth Stylized Rune Icon -->
+        <g stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <!-- Vertical center axis -->
+          <line x1="0" y1="-20" x2="0" y2="20"/>
+          <!-- Upper cross & lower cross path -->
+          <path d="M -9,-9 L 9,9 L 0,18 L 0,-18 L 9,-9 L -9,9"/>
+        </g>
+
+        <!-- Tiny satellite dots -->
+        <circle cx="-32" cy="-18" r="2" fill="#3fd0ff"/>
+        <circle cx="30" cy="20" r="2.2" fill="#ff6a8e"/>
+      </g>
+
+      <!-- Peripheral Right Node (GATT Characteristic) -->
+      <g transform="translate(374, 62)">
+        <circle cx="24" cy="24" r="22" fill="#0d112b" stroke="#3fd0ff" stroke-width="1.2"/>
+        <text x="24" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="14" text-anchor="middle">⚡</text>
+        <text x="24" y="58" font-family="ui-monospace, monospace" font-size="9.5" fill="#9ba1c7" text-anchor="middle">GATT RX / TX</text>
+      </g>
+
+      <!-- Connecting Data Links with Dashed Animation -->
+      <line class="anim-data-flow" x1="116" y1="85" x2="201" y2="85" stroke="#8b7bff" stroke-width="1.8" stroke-dasharray="5 5"/>
+      <line class="anim-data-flow" x1="289" y1="85" x2="374" y2="85" stroke="#3fd0ff" stroke-width="1.8" stroke-dasharray="5 5"/>
+    </g>
+
+    <!-- ==================== SERIAL TERMINAL MONITOR ==================== -->
+    <g transform="translate(20, 310)">
+      <rect width="450" height="175" rx="12" fill="url(#terminal-grad)" stroke="rgba(150, 160, 255, 0.16)" stroke-width="1.2"/>
+
+      <!-- Terminal Header -->
+      <g transform="translate(14, 18)">
+        <circle cx="4" cy="4" r="3" fill="#3fd0ff"/>
+        <text x="14" y="8" font-family="ui-monospace, monospace" font-size="10.5" font-weight="700" fill="#3fd0ff" letter-spacing="0.5">
+          LIVE SERIAL STREAM · BUFFER: 1024B · DELIM: '\n'
+        </text>
+      </g>
+
+      <line x1="0" y1="28" x2="450" y2="28" stroke="rgba(150, 160, 255, 0.08)" stroke-width="1"/>
+
+      <!-- Console Log Stream -->
+      <g transform="translate(14, 48)" font-family="ui-monospace, monospace" font-size="11.5">
+        <!-- Log line 1 -->
+        <text y="0" fill="#9ba1c7">
+          <tspan fill="#8b7bff">[SYS]</tspan> BluetoothService initialized (MainThread=true)
+        </text>
+
+        <!-- Log line 2 -->
+        <text y="22" fill="#e9ebfa">
+          <tspan fill="#34d399">[EVT]</tspan> onStatusChange: <tspan fill="#34d399" font-weight="700">CONNECTED</tspan> (rssi: -58)
+        </text>
+
+        <!-- Log line 3 -->
+        <text y="44" fill="#3fd0ff">
+          <tspan fill="#3fd0ff" font-weight="700">[TX] ►</tspan> BluetoothWriter.writeln("CMD:GET_SENSOR");
+        </text>
+
+        <!-- Log line 4 -->
+        <text y="66" fill="#ffd56a">
+          <tspan fill="#ffd56a" font-weight="700">[RX] ◄</tspan> onDataRead: "SENSOR_DATA:TEMP=24.8C,BAT=98%"
+        </text>
+
+        <!-- Log line 5: Active Prompt with Caret -->
+        <text y="88" fill="#e9ebfa">
+          <tspan fill="#3fd0ff">[TX] ►</tspan> BluetoothWriter.writeln("CMD:STREAM_ACK")<tspan class="anim-caret" fill="#3fd0ff">_</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Floating Compatibility Pill -->
+  <g class="anim-float-hud" transform="translate(930, 48)">
+    <rect width="240" height="30" rx="15" fill="rgba(13, 17, 43, 0.95)" stroke="url(#cosmic-stripe)" stroke-width="1.2" filter="url(#glow-cyan)"/>
+    <text x="120" y="19" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">
+      ★ CLASSIC 2.1+ · BLE 4.3+ · KOTLIN
+    </text>
+  </g>
+</svg>
