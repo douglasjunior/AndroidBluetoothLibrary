@@ -26,7 +26,7 @@
   <a href="#-configuration">Configuration</a> ·
   <a href="#-usage--examples">Usage</a> ·
   <a href="#-api-reference">API Reference</a> ·
-  <a href="#-known-issues--troubleshooting">Troubleshooting</a> ·
+  <a href="#known-issues--troubleshooting">Troubleshooting</a> ·
   <a href="#-contributing">Contributing</a>
 </p>
 
@@ -167,7 +167,7 @@ Add the required permissions to your `AndroidManifest.xml`:
 ```
 
 > [!IMPORTANT]
-> **Location Permission for Bluetooth Scanning:** Starting with Android 6.0 (API 23), Android requires runtime location permission to detect nearby Bluetooth devices. See [Troubleshooting](#-known-issues--troubleshooting) for details.
+> **Location Permission for Bluetooth Scanning:** Starting with Android 6.0 (API 23), Android requires runtime location permission to detect nearby Bluetooth devices. See [Troubleshooting](#known-issues--troubleshooting) for details.
 
 ---
 
@@ -423,7 +423,7 @@ Explore the full working sample applications in this repository:
 
 ---
 
-## ⚙️ Known Issues & Troubleshooting
+## Known Issues & Troubleshooting
 
 <span id="known-issues"></span>
 

@@ -67,18 +67,23 @@
         }
         .anim-radio-1 {
           animation: radioWave 3s cubic-bezier(0.1, 0.5, 0.4, 1) infinite;
-          transform-origin: 960px 225px;
+          transform-box: fill-box;
+          transform-origin: center;
         }
         .anim-radio-2 {
           animation: radioWave 3s cubic-bezier(0.1, 0.5, 0.4, 1) 1s infinite;
-          transform-origin: 960px 225px;
+          transform-box: fill-box;
+          transform-origin: center;
         }
         .anim-radio-3 {
           animation: radioWave 3s cubic-bezier(0.1, 0.5, 0.4, 1) 2s infinite;
-          transform-origin: 960px 225px;
+          transform-box: fill-box;
+          transform-origin: center;
         }
         .anim-pulse-beacon {
           animation: pulseBeacon 2s ease-in-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
         }
         .anim-caret {
           animation: caretBlink 1s steps(2, start) infinite;
@@ -88,12 +93,14 @@
         }
         .anim-float-hud {
           animation: hudFloat 5s ease-in-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
         }
       }
 
       @keyframes starTwinkle {
-        0%, 100% { opacity: 0.3; transform: scale(0.9); }
-        50% { opacity: 0.9; transform: scale(1.15); }
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.9; }
       }
 
       @keyframes radioWave {
@@ -386,10 +393,12 @@
   </g>
 
   <!-- Floating Compatibility Pill -->
-  <g class="anim-float-hud" transform="translate(930, 48)">
-    <rect width="240" height="30" rx="15" fill="rgba(13, 17, 43, 0.95)" stroke="url(#cosmic-stripe)" stroke-width="1.2" filter="url(#glow-cyan)"/>
-    <text x="120" y="19" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">
-      ★ CLASSIC 2.1+ · BLE 4.3+ · KOTLIN
-    </text>
+  <g transform="translate(930, 48)">
+    <g class="anim-float-hud">
+      <rect width="240" height="30" rx="15" fill="rgba(13, 17, 43, 0.95)" stroke="url(#cosmic-stripe)" stroke-width="1.2" filter="url(#glow-cyan)"/>
+      <text x="120" y="19" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">
+        ★ CLASSIC 2.1+ · BLE 4.3+ · KOTLIN
+      </text>
+    </g>
   </g>
 </svg>
