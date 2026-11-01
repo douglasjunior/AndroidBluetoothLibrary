@@ -23,7 +23,7 @@
   <a href="#-why-android-bluetooth-library">Why</a> ·
   <a href="#-compatibility">Compatibility</a> ·
   <a href="#-installation">Installation</a> ·
-  <a href="#-configuration">Configuration</a> ·
+  <a href="#configuration">Configuration</a> ·
   <a href="#-usage--examples">Usage</a> ·
   <a href="#-api-reference">API Reference</a> ·
   <a href="#known-issues--troubleshooting">Troubleshooting</a> ·
@@ -171,7 +171,9 @@ Add the required permissions to your `AndroidManifest.xml`:
 
 ---
 
-## 🛠️ Configuration
+## Configuration
+
+<span id="configuration"></span>
 
 Initialize the library once in your `Application.onCreate()` or before using any Bluetooth services.
 

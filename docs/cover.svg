@@ -393,10 +393,10 @@
   </g>
 
   <!-- Floating Compatibility Pill -->
-  <g transform="translate(930, 48)">
+  <g transform="translate(916, 48)">
     <g class="anim-float-hud">
-      <rect width="240" height="30" rx="15" fill="rgba(13, 17, 43, 0.95)" stroke="url(#cosmic-stripe)" stroke-width="1.2" filter="url(#glow-cyan)"/>
-      <text x="120" y="19" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">
+      <rect width="268" height="30" rx="15" fill="rgba(13, 17, 43, 0.95)" stroke="url(#cosmic-stripe)" stroke-width="1.2" filter="url(#glow-cyan)"/>
+      <text x="134" y="19" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">
         ★ CLASSIC 2.1+ · BLE 4.3+ · KOTLIN
       </text>
     </g>
